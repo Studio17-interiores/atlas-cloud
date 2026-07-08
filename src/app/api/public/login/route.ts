@@ -5,14 +5,21 @@ import { getSupabaseConfig } from "@/lib/supabase/config";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const { email, password } = await request.json();
+  const isJson = request.headers.get("content-type")?.includes("application/json") ?? false;
+  const credentials = isJson
+    ? await request.json()
+    : Object.fromEntries(await request.formData());
+  const email = String(credentials.email ?? "");
+  const password = String(credentials.password ?? "");
   const { url, anonKey } = getSupabaseConfig();
 
   if (!url || !anonKey) {
-    return NextResponse.json({ error: "Falta configurar Supabase en Vercel." }, { status: 500 });
+    return handleLoginError(request, isJson, "Falta configurar Supabase en Vercel.", 500);
   }
 
-  let response = NextResponse.json({ ok: true });
+  let response = isJson
+    ? NextResponse.json({ ok: true })
+    : NextResponse.redirect(new URL("/", request.url), { status: 303 });
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -31,8 +38,18 @@ export async function POST(request: NextRequest) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    return handleLoginError(request, isJson, error.message, 401);
   }
 
   return response;
+}
+
+function handleLoginError(request: NextRequest, isJson: boolean, message: string, status: number) {
+  if (isJson) {
+    return NextResponse.json({ error: message }, { status });
+  }
+
+  const url = new URL("/login", request.url);
+  url.searchParams.set("error", message);
+  return NextResponse.redirect(url, { status: 303 });
 }
