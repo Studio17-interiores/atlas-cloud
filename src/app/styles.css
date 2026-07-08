@@ -178,6 +178,24 @@ textarea {
   margin: 6px 0;
 }
 
+.table-list {
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 12px 0 2px;
+}
+
+.row p {
+  margin: 4px 0 0;
+}
+
 @media (max-width: 900px) {
   .shell {
     grid-template-columns: 1fr;

@@ -1,6 +1,7 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-const navItems = [
+const navItems: Array<[string, string]> = [
   ["Hoy", "/"],
   ["Semana", "/week"],
   ["Calendario", "/calendar"],
@@ -8,12 +9,13 @@ const navItems = [
   ["Proyectos", "/projects"],
   ["Clientes", "/clients"],
   ["Dinero", "/money"],
+  ["Objetivos", "/growth"],
   ["Estudio", "/studio"],
   ["Plantillas", "/templates"],
   ["Sistema", "/system"]
 ];
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
       <aside className="sidebar">
@@ -36,4 +38,3 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

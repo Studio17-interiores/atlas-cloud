@@ -38,6 +38,16 @@ export type StudioMoneyMovement = {
   project_id: string | null;
 };
 
+export type StudioGoal = {
+  id: string;
+  period: string;
+  title: string;
+  current_value: number;
+  target_value: number;
+  kind: string | null;
+  actions: string[];
+};
+
 export async function getStudio17Data() {
   const supabase = createSupabaseAdminClient();
 
@@ -53,13 +63,14 @@ export async function getStudio17Data() {
       projects: [] as StudioProject[],
       tasks: [] as StudioTask[],
       decisions: [] as StudioDecision[],
-      moneyMovements: [] as StudioMoneyMovement[]
+      moneyMovements: [] as StudioMoneyMovement[],
+      goals: [] as StudioGoal[]
     };
   }
 
   const organizationId = organization.id as string;
 
-  const [projects, tasks, decisions, moneyMovements] = await Promise.all([
+  const [projects, tasks, decisions, moneyMovements, goals] = await Promise.all([
     supabase
       .from("projects")
       .select("id, name, description, phase, health, budget, fee, fee_paid_percent, fee_type, client_id")
@@ -80,6 +91,11 @@ export async function getStudio17Data() {
       .from("money_movements")
       .select("id, title, amount, status, type, project_id")
       .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("goals")
+      .select("id, period, title, current_value, target_value, kind, actions")
+      .eq("organization_id", organizationId)
       .order("created_at", { ascending: true })
   ]);
 
@@ -88,7 +104,8 @@ export async function getStudio17Data() {
     projects: (projects.data ?? []) as StudioProject[],
     tasks: (tasks.data ?? []) as StudioTask[],
     decisions: (decisions.data ?? []) as StudioDecision[],
-    moneyMovements: (moneyMovements.data ?? []) as StudioMoneyMovement[]
+    moneyMovements: (moneyMovements.data ?? []) as StudioMoneyMovement[],
+    goals: (goals.data ?? []) as StudioGoal[]
   };
 }
 
