@@ -17,8 +17,10 @@ export async function POST(request: NextRequest) {
   const form = await request.formData();
   const file = form.get("file");
 
+  const redirect = String(form.get("redirect") ?? "/new");
+
   if (!(file instanceof File) || file.size === 0) {
-    return redirectWithMessage(request, "error", "No has seleccionado ningun archivo.");
+    return redirectWithMessage(request, redirect, "error", "No has seleccionado ningun archivo.");
   }
 
   const supabase = createSupabaseAdminClient();
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (!organization) {
-    return redirectWithMessage(request, "error", "No encuentro Studio 17.");
+    return redirectWithMessage(request, redirect, "error", "No encuentro Studio 17.");
   }
 
   await supabase.storage.createBucket(BUCKET, { public: false }).catch(() => null);
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (uploadError) {
-    return redirectWithMessage(request, "error", uploadError.message);
+    return redirectWithMessage(request, redirect, "error", uploadError.message);
   }
 
   if (kind === "template") {
@@ -69,15 +71,15 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  return redirectWithMessage(request, "uploaded", "1");
+  return redirectWithMessage(request, redirect, "uploaded", "1");
 }
 
 function optional(value: string) {
   return value ? value : null;
 }
 
-function redirectWithMessage(request: NextRequest, key: string, value: string) {
-  const url = new URL("/new", request.url);
+function redirectWithMessage(request: NextRequest, path: string, key: string, value: string) {
+  const url = new URL(path, request.url);
   url.searchParams.set(key, value);
   return NextResponse.redirect(url, { status: 303 });
 }

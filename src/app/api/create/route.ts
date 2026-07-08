@@ -67,6 +67,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    if (entity === "decision") {
+      await supabase.from("decisions").insert({
+        organization_id: organizationId,
+        project_id: optional(text(form.project_id)),
+        title: text(form.title),
+        owner: text(form.owner),
+        due_date: optional(text(form.due_date)),
+        status: "open",
+        impact: text(form.impact)
+      });
+    }
+
     if (entity === "money") {
       await supabase.from("money_movements").insert({
         organization_id: organizationId,
@@ -137,6 +149,19 @@ export async function POST(request: NextRequest) {
         category: text(form.category),
         reliability: number(form.reliability, 70),
         notes: text(form.notes)
+      });
+    }
+
+    if (entity === "automation") {
+      await supabase.from("automations").insert({
+        organization_id: organizationId,
+        name: text(form.name),
+        rule_type: text(form.rule_type, "manual_reminder"),
+        config: {
+          message: text(form.message),
+          days: number(form.days, 1)
+        },
+        enabled: true
       });
     }
   } catch (error) {

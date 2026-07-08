@@ -74,16 +74,48 @@ textarea {
   gap: 8px;
 }
 
-.new-button {
+.new-button,
+.new-menu summary {
   background: var(--accent);
   border-radius: 8px;
   color: white;
+  cursor: pointer;
   display: block;
   font-weight: 800;
   margin-bottom: 18px;
   padding: 0.8rem 0.9rem;
   text-align: center;
   text-decoration: none;
+}
+
+.new-menu {
+  margin-bottom: 18px;
+}
+
+.new-menu summary {
+  list-style: none;
+  margin-bottom: 8px;
+}
+
+.new-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.new-menu a {
+  background: #f4eee5;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  display: block;
+  font-size: 0.9rem;
+  margin: 6px 0;
+  padding: 0.62rem 0.7rem;
+  text-decoration: none;
+}
+
+.new-menu a:hover {
+  background: var(--accent);
+  color: white;
 }
 
 .nav a {
@@ -263,6 +295,33 @@ button {
 .notice.error {
   background: #f8e9e7;
   border-color: #e0c1bd;
+}
+
+.choice-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  margin-top: 16px;
+}
+
+.choice {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  text-decoration: none;
+}
+
+.choice span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.choice.active {
+  background: #f4eee5;
+  border-color: var(--sand);
 }
 
 .ai-list li {
