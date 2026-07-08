@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export function createSupabaseServerClient() {
   const cookieStore = cookies();
@@ -13,10 +13,10 @@ export function createSupabaseServerClient() {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options: Partial<ResponseCookie>) {
+       set(name: string, value: string, options: CookieOptions) {
           cookieStore.set({ name, value, ...options });
         },
-        remove(name: string, options: Partial<ResponseCookie>) {
+       remove(name: string, options: CookieOptions) {
           cookieStore.set({ name, value: "", ...options });
         }
       }
