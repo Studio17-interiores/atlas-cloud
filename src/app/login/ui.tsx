@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 
 type AuthFormProps = {
+  error?: string;
+};
+
+type ClientConfig = {
+  url: string;
+  anonKey: string;
   error?: string;
 };
 
@@ -18,23 +24,21 @@ export function AuthForm({ error }: AuthFormProps) {
     setIsLoading(true);
     setMessage("");
 
-    const supabase = createSupabaseBrowserClient();
+    const configResponse = await fetch("/api/public/client-config", { cache: "no-store" });
+    const config = (await configResponse.json()) as ClientConfig;
+
+    if (!configResponse.ok || !config.url || !config.anonKey) {
+      setIsLoading(false);
+      setMessage(config.error ?? "ATLAS no ha podido leer la configuracion de Supabase.");
+      return;
+    }
+
+    const supabase = createBrowserClient(config.url, config.anonKey);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
       setIsLoading(false);
       setMessage(signInError.message);
-      return;
-    }
-
-    const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setIsLoading(false);
-      setMessage(userError?.message ?? "Login correcto, pero no se ha podido guardar la sesion.");
       return;
     }
 
