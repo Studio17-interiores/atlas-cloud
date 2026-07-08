@@ -74,6 +74,18 @@ textarea {
   gap: 8px;
 }
 
+.new-button {
+  background: var(--accent);
+  border-radius: 8px;
+  color: white;
+  display: block;
+  font-weight: 800;
+  margin-bottom: 18px;
+  padding: 0.8rem 0.9rem;
+  text-align: center;
+  text-decoration: none;
+}
+
 .nav a {
   text-decoration: none;
   color: var(--muted);
@@ -206,6 +218,51 @@ textarea {
 
 .callout p {
   margin: 6px 0 0;
+}
+
+.quick-form {
+  display: grid;
+  gap: 10px;
+}
+
+.quick-form input,
+.quick-form select,
+.quick-form textarea {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  padding: 0.75rem 0.8rem;
+  width: 100%;
+}
+
+.quick-form textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.quick-form button,
+button {
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0.78rem 0.9rem;
+}
+
+.notice {
+  background: #edf4ea;
+  border: 1px solid #c8d8c1;
+  border-radius: 8px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+}
+
+.notice.error {
+  background: #f8e9e7;
+  border-color: #e0c1bd;
 }
 
 @media (max-width: 900px) {

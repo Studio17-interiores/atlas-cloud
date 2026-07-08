@@ -26,6 +26,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <div className="muted">Studio 17 Cloud</div>
           </div>
         </div>
+        <Link className="new-button" href="/new">
+          + Nuevo
+        </Link>
         <nav className="nav">
           {navItems.map(([label, href]) => (
             <Link href={href} key={href}>
