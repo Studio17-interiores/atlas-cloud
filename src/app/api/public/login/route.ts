@@ -1,54 +1,66 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { getSupabaseConfig } from "@/lib/supabase/config";
+import { createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const isJson = request.headers.get("content-type")?.includes("application/json") ?? false;
-  const credentials = isJson
-    ? await request.json()
-    : Object.fromEntries(await request.formData());
+  const credentials = Object.fromEntries(await request.formData());
   const email = String(credentials.email ?? "");
   const password = String(credentials.password ?? "");
   const { url, anonKey } = getSupabaseConfig();
+  const sessionSecret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? anonKey;
 
   if (!url || !anonKey) {
-    return handleLoginError(request, isJson, "Falta configurar Supabase en Vercel.", 500);
+    return handleLoginError(request, "Falta configurar Supabase en Vercel.");
   }
 
-  let response = isJson
-    ? NextResponse.json({ ok: true })
-    : NextResponse.redirect(new URL("/", request.url), { status: 303 });
-
-  const supabase = createServerClient(url, anonKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        response.cookies.set({ name, value, ...options });
-      },
-      remove(name: string, options: CookieOptions) {
-        response.cookies.set({ name, value: "", ...options });
-      }
-    }
+  const authResponse = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`
+    },
+    body: JSON.stringify({ email, password })
   });
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const authResult = await authResponse.json();
 
-  if (error) {
-    return handleLoginError(request, isJson, error.message, 401);
+  if (!authResponse.ok) {
+    return handleLoginError(request, authResult.error_description ?? authResult.msg ?? authResult.error ?? "Login incorrecto.");
   }
+
+  const user = authResult.user;
+
+  if (!user?.id || !user?.email) {
+    return handleLoginError(request, "Supabase ha aceptado el login, pero no ha devuelto usuario.");
+  }
+
+  const token = await createSessionToken(
+    {
+      email: user.email,
+      userId: user.id,
+      expiresAt: Date.now() + SESSION_MAX_AGE_SECONDS * 1000
+    },
+    sessionSecret
+  );
+
+  const response = NextResponse.redirect(new URL("/", request.url), { status: 303 });
+  response.cookies.set({
+    name: SESSION_COOKIE,
+    value: token,
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: SESSION_MAX_AGE_SECONDS
+  });
 
   return response;
 }
 
-function handleLoginError(request: NextRequest, isJson: boolean, message: string, status: number) {
-  if (isJson) {
-    return NextResponse.json({ error: message }, { status });
-  }
-
+function handleLoginError(request: NextRequest, message: string) {
   const url = new URL("/login", request.url);
   url.searchParams.set("error", message);
   return NextResponse.redirect(url, { status: 303 });

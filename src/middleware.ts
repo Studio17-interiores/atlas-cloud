@@ -1,50 +1,34 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { normalizeSupabaseUrl } from "@/lib/supabase/config";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 
 export async function middleware(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const sessionSecret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? supabaseAnonKey ?? "";
+  const isConfigRoute = request.nextUrl.pathname.startsWith("/config-missing");
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return NextResponse.next({ request });
+    if (isConfigRoute) {
+      return NextResponse.next({ request });
+    }
+
+    const url = request.nextUrl.clone();
+    url.pathname = "/config-missing";
+    return NextResponse.redirect(url);
   }
 
-  let response = NextResponse.next({ request });
-
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request });
-          response.cookies.set({ name, value, ...options });
-        },
-       remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({ request });
-          response.cookies.set({ name, value: "", ...options });
-        }
-      }
-    }
-  );
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
   const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
-  if (!user && !isAuthRoute) {
+  const isPublicApiRoute = request.nextUrl.pathname.startsWith("/api/public");
+  const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value, sessionSecret);
+
+  if (!session && !isAuthRoute && !isPublicApiRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  return response;
+  return NextResponse.next({ request });
 }
 
 export const config = {
