@@ -5,12 +5,14 @@ type NewPageProps = {
   searchParams?: {
     created?: string;
     error?: string;
+    uploaded?: string;
   };
 };
 
 export default async function NewPage({ searchParams }: NewPageProps) {
   const data = await getStudio17Data();
   const created = searchParams?.created === "1";
+  const uploaded = searchParams?.uploaded === "1";
   const error = searchParams?.error;
 
   return (
@@ -22,6 +24,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
       </section>
 
       {created ? <p className="notice">Guardado. ATLAS ya lo tiene.</p> : null}
+      {uploaded ? <p className="notice">Archivo subido. ATLAS ya lo ha guardado.</p> : null}
       {error ? <p className="notice error">No se ha guardado: {error}</p> : null}
 
       <section className="grid">
@@ -105,6 +108,19 @@ export default async function NewPage({ searchParams }: NewPageProps) {
           <input name="file_name" placeholder="Nombre de archivo o pendiente" />
         </QuickForm>
 
+        <UploadForm title="Subir archivo de proyecto" kind="document" projects={data.projects}>
+          <input name="title" placeholder="Titulo del documento" required />
+          <ProjectSelect projects={data.projects} />
+          <select name="type" defaultValue="other">
+            <option value="contract">Contrato</option>
+            <option value="photo">Fotos</option>
+            <option value="plan">Planos</option>
+            <option value="budget">Presupuesto</option>
+            <option value="invoice">Factura</option>
+            <option value="other">Otro</option>
+          </select>
+        </UploadForm>
+
         <QuickForm title="Plantilla" entity="template">
           <input name="title" placeholder="Titulo" required />
           <select name="type" defaultValue="other">
@@ -116,6 +132,17 @@ export default async function NewPage({ searchParams }: NewPageProps) {
           <input name="file_name" placeholder="Nombre de archivo" />
           <textarea name="notes" placeholder="Notas" />
         </QuickForm>
+
+        <UploadForm title="Subir plantilla" kind="template" projects={data.projects}>
+          <input name="title" placeholder="Titulo de plantilla" required />
+          <select name="type" defaultValue="template">
+            <option value="contract">Contrato</option>
+            <option value="budget">Presupuesto</option>
+            <option value="template">Plantilla</option>
+            <option value="other">Otro</option>
+          </select>
+          <textarea name="notes" placeholder="Notas" />
+        </UploadForm>
 
         <QuickForm title="Reunion" entity="meeting">
           <input name="title" placeholder="Titulo" required />
@@ -149,6 +176,20 @@ function QuickForm({ title, entity, children }: { title: string; entity: string;
         <input type="hidden" name="redirect" value="/new" />
         {children}
         <button type="submit">Guardar</button>
+      </form>
+    </article>
+  );
+}
+
+function UploadForm({ title, kind, children }: { title: string; kind: string; projects: Array<{ id: string; name: string }>; children: ReactNode }) {
+  return (
+    <article className="panel upload-panel">
+      <h2>{title}</h2>
+      <form action="/api/upload" method="post" encType="multipart/form-data" className="quick-form">
+        <input type="hidden" name="kind" value={kind} />
+        {children}
+        <input name="file" type="file" required />
+        <button type="submit">Subir archivo</button>
       </form>
     </article>
   );

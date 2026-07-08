@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 const navItems: Array<[string, string]> = [
   ["Hoy", "/"],
+  ["ATLAS IA", "/assistant"],
   ["Semana", "/week"],
   ["Calendario", "/calendar"],
   ["Seguimientos", "/followups"],
