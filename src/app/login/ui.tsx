@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -10,11 +9,17 @@ export function AuthForm() {
 
   async function signIn(event: React.FormEvent) {
     event.preventDefault();
-    const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const response = await fetch("/api/public/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
 
-    if (error) {
-      setMessage(`No se ha podido entrar: ${error.message}`);
+    if (!response.ok) {
+      const result = await response.json();
+      setMessage(`No se ha podido entrar: ${result.error ?? "Error desconocido"}`);
       return;
     }
 
