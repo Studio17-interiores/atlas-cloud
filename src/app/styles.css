@@ -196,6 +196,18 @@ textarea {
   margin: 4px 0 0;
 }
 
+.callout {
+  background: #f4eee5;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.callout p {
+  margin: 6px 0 0;
+}
+
 @media (max-width: 900px) {
   .shell {
     grid-template-columns: 1fr;

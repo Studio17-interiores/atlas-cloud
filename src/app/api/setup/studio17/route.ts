@@ -164,6 +164,98 @@ export async function POST(request: NextRequest) {
     body: "Studio 17 inicializado en ATLAS Cloud."
   });
 
+  await ensureRecord(supabase, "documents", organizationId, "title", "Contrato Axis", {
+    organization_id: organizationId,
+    project_id: axis.id,
+    title: "Contrato Axis",
+    type: "contract",
+    status: "pending",
+    file_name: "pendiente-subir-contrato-axis.pdf"
+  });
+
+  await ensureRecord(supabase, "documents", organizationId, "title", "Fotos iniciales Axis", {
+    organization_id: organizationId,
+    project_id: axis.id,
+    title: "Fotos iniciales Axis",
+    type: "photo",
+    status: "pending",
+    file_name: "pendiente-subir-fotos-axis.zip"
+  });
+
+  await ensureRecord(supabase, "documents", organizationId, "title", "Documentacion obra Garridos", {
+    organization_id: organizationId,
+    project_id: garridosProject.id,
+    title: "Documentacion obra Garridos",
+    type: "plan",
+    status: "pending",
+    file_name: "pendiente-subir-documentacion-garridos.pdf"
+  });
+
+  await ensureRecord(supabase, "templates", organizationId, "title", "Plantilla contrato de interiorismo", {
+    organization_id: organizationId,
+    title: "Plantilla contrato de interiorismo",
+    type: "contract",
+    notes: "Base para contratos de proyectos completos. Pendiente subir archivo definitivo.",
+    file_name: "pendiente-subir-contrato-interiorismo.docx"
+  });
+
+  await ensureRecord(supabase, "templates", organizationId, "title", "Plantilla presupuesto Studio 17", {
+    organization_id: organizationId,
+    title: "Plantilla presupuesto Studio 17",
+    type: "budget",
+    notes: "Formato de propuesta y honorarios. Pendiente subir archivo definitivo.",
+    file_name: "pendiente-subir-presupuesto.xlsx"
+  });
+
+  await ensureRecord(supabase, "templates", organizationId, "title", "Checklist visita de obra", {
+    organization_id: organizationId,
+    title: "Checklist visita de obra",
+    type: "other",
+    notes: "Lista rapida para visitas, fotos, mediciones y decisiones.",
+    file_name: "pendiente-subir-checklist-obra.pdf"
+  });
+
+  await ensureRecord(supabase, "suppliers", organizationId, "name", "Proveedor ceramica por definir", {
+    organization_id: organizationId,
+    name: "Proveedor ceramica por definir",
+    category: "Materiales",
+    reliability: 70,
+    notes: "Completar con contacto real, tarifas y condiciones."
+  });
+
+  await ensureRecord(supabase, "suppliers", organizationId, "name", "Carpinteria por definir", {
+    organization_id: organizationId,
+    name: "Carpinteria por definir",
+    category: "Ejecucion",
+    reliability: 70,
+    notes: "Completar cuando haya proveedor habitual validado."
+  });
+
+  await ensureRecord(supabase, "meetings", organizationId, "title", "Revision interna Axis", {
+    organization_id: organizationId,
+    project_id: axis.id,
+    client_id: omar.id,
+    title: "Revision interna Axis",
+    meeting_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    prep: ["Revisar entrega final", "Listar pendientes del arquitecto", "Preparar propuesta de direccion de obra"]
+  });
+
+  await ensureRecord(supabase, "automations", organizationId, "name", "Aviso reunion manana", {
+    organization_id: organizationId,
+    name: "Aviso reunion manana",
+    rule_type: "meeting_tomorrow",
+    config: { message: "Preparar reunion de manana y revisar pendientes del proyecto." },
+    enabled: true
+  });
+
+  await ensureRecord(supabase, "automations", organizationId, "name", "Seguimiento cliente sin contacto", {
+    organization_id: organizationId,
+    name: "Seguimiento cliente sin contacto",
+    rule_type: "client_no_contact_7_days",
+    config: { days: 7 },
+    enabled: true
+  });
+
   return NextResponse.redirect(new URL("/system?setup=done", request.url), { status: 303 });
 }
 

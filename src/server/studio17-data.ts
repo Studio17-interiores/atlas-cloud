@@ -48,6 +48,48 @@ export type StudioGoal = {
   actions: string[];
 };
 
+export type StudioClient = {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  estimated_value: number;
+  next_action: string | null;
+  sentiment: string | null;
+};
+
+export type StudioDocument = {
+  id: string;
+  title: string;
+  type: string;
+  status: string;
+  project_id: string | null;
+  file_name: string | null;
+};
+
+export type StudioTemplate = {
+  id: string;
+  title: string;
+  type: string;
+  notes: string | null;
+  file_name: string | null;
+};
+
+export type StudioSupplier = {
+  id: string;
+  name: string;
+  category: string | null;
+  reliability: number | null;
+  notes: string | null;
+};
+
+export type StudioMeeting = {
+  id: string;
+  title: string;
+  meeting_at: string;
+  project_id: string | null;
+};
+
 export async function getStudio17Data() {
   const supabase = createSupabaseAdminClient();
 
@@ -64,13 +106,18 @@ export async function getStudio17Data() {
       tasks: [] as StudioTask[],
       decisions: [] as StudioDecision[],
       moneyMovements: [] as StudioMoneyMovement[],
-      goals: [] as StudioGoal[]
+      goals: [] as StudioGoal[],
+      clients: [] as StudioClient[],
+      documents: [] as StudioDocument[],
+      templates: [] as StudioTemplate[],
+      suppliers: [] as StudioSupplier[],
+      meetings: [] as StudioMeeting[]
     };
   }
 
   const organizationId = organization.id as string;
 
-  const [projects, tasks, decisions, moneyMovements, goals] = await Promise.all([
+  const [projects, tasks, decisions, moneyMovements, goals, clients, documents, templates, suppliers, meetings] = await Promise.all([
     supabase
       .from("projects")
       .select("id, name, description, phase, health, budget, fee, fee_paid_percent, fee_type, client_id")
@@ -96,6 +143,31 @@ export async function getStudio17Data() {
       .from("goals")
       .select("id, period, title, current_value, target_value, kind, actions")
       .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("clients")
+      .select("id, name, type, status, estimated_value, next_action, sentiment")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("documents")
+      .select("id, title, type, status, project_id, file_name")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("templates")
+      .select("id, title, type, notes, file_name")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("suppliers")
+      .select("id, name, category, reliability, notes")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("meetings")
+      .select("id, title, meeting_at, project_id")
+      .eq("organization_id", organizationId)
       .order("created_at", { ascending: true })
   ]);
 
@@ -105,7 +177,12 @@ export async function getStudio17Data() {
     tasks: (tasks.data ?? []) as StudioTask[],
     decisions: (decisions.data ?? []) as StudioDecision[],
     moneyMovements: (moneyMovements.data ?? []) as StudioMoneyMovement[],
-    goals: (goals.data ?? []) as StudioGoal[]
+    goals: (goals.data ?? []) as StudioGoal[],
+    clients: (clients.data ?? []) as StudioClient[],
+    documents: (documents.data ?? []) as StudioDocument[],
+    templates: (templates.data ?? []) as StudioTemplate[],
+    suppliers: (suppliers.data ?? []) as StudioSupplier[],
+    meetings: (meetings.data ?? []) as StudioMeeting[]
   };
 }
 
