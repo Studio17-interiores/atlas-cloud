@@ -59,6 +59,27 @@ export default async function ProjectsPage() {
                 ))}
                 {!projectTasks.length && !projectDecisions.length ? <li>Sin bloqueos importantes registrados.</li> : null}
               </ul>
+              <details className="edit-box">
+                <summary>Editar rapido</summary>
+                <form action="/api/update" method="post" className="quick-form">
+                  <input type="hidden" name="entity" value="project" />
+                  <input type="hidden" name="id" value={project.id} />
+                  <input type="hidden" name="redirect" value="/projects" />
+                  <select name="phase" defaultValue={project.phase}>
+                    <option value="concept">Concepto</option>
+                    <option value="budget">Presupuesto</option>
+                    <option value="design">Diseno</option>
+                    <option value="worksite">Obra</option>
+                    <option value="delivery">Entrega</option>
+                    <option value="closed">Cerrado</option>
+                  </select>
+                  <input name="health" type="number" min="0" max="100" defaultValue={project.health} />
+                  <input name="budget" type="number" defaultValue={Number(project.budget)} />
+                  <input name="fee" type="number" defaultValue={Number(project.fee)} />
+                  <input name="fee_paid_percent" type="number" min="0" max="100" defaultValue={project.fee_paid_percent} />
+                  <button type="submit">Guardar cambios</button>
+                </form>
+              </details>
             </article>
           );
         })}

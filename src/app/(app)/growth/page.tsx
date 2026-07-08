@@ -41,6 +41,24 @@ export default async function GrowthPage() {
                   <li key={action}>{action}</li>
                 ))}
               </ul>
+              <details className="edit-box">
+                <summary>Editar objetivo</summary>
+                <form action="/api/update" method="post" className="quick-form">
+                  <input type="hidden" name="entity" value="goal" />
+                  <input type="hidden" name="id" value={goal.id} />
+                  <input type="hidden" name="redirect" value="/growth" />
+                  <input name="title" defaultValue={goal.title} />
+                  <select name="period" defaultValue={goal.period}>
+                    <option value="month">Mensual</option>
+                    <option value="quarter">Trimestral</option>
+                    <option value="year">Anual</option>
+                  </select>
+                  <input name="current_value" type="number" defaultValue={Number(goal.current_value)} />
+                  <input name="target_value" type="number" defaultValue={Number(goal.target_value)} />
+                  <textarea name="actions" defaultValue={(goal.actions ?? []).join("\n")} />
+                  <button type="submit">Guardar objetivo</button>
+                </form>
+              </details>
             </article>
           );
         })}

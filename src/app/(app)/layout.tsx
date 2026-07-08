@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 const navItems: Array<[string, string]> = [
   ["Hoy", "/"],
   ["ATLAS IA", "/assistant"],
+  ["Buscar", "/search"],
   ["Semana", "/week"],
   ["Calendario", "/calendar"],
   ["Seguimientos", "/followups"],
@@ -13,6 +14,7 @@ const navItems: Array<[string, string]> = [
   ["Objetivos", "/growth"],
   ["Estudio", "/studio"],
   ["Plantillas", "/templates"],
+  ["Informes", "/reports"],
   ["Sistema", "/system"]
 ];
 
@@ -40,6 +42,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Link href="/new?type=template-upload">Subir plantilla</Link>
           <Link href="/new?type=supplier">Proveedor</Link>
           <Link href="/new?type=note">Nota</Link>
+          <Link href="/new?type=automation">Automatizacion</Link>
         </details>
         <nav className="nav">
           {navItems.map(([label, href]) => (
