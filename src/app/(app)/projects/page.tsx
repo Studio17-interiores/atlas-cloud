@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatEuro, getStudio17Data } from "@/server/studio17-data";
 
 const phaseLabels: Record<string, string> = {
@@ -59,6 +60,9 @@ export default async function ProjectsPage() {
                 ))}
                 {!projectTasks.length && !projectDecisions.length ? <li>Sin bloqueos importantes registrados.</li> : null}
               </ul>
+              <Link className="button-link subtle" href={`/projects/${project.id}`}>
+                Abrir ficha completa
+              </Link>
               <details className="edit-box">
                 <summary>Editar rapido</summary>
                 <form action="/api/update" method="post" className="quick-form">

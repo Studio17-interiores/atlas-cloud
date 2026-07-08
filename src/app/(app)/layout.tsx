@@ -12,6 +12,7 @@ const navItems: Array<[string, string]> = [
   ["Clientes", "/clients"],
   ["Dinero", "/money"],
   ["Objetivos", "/growth"],
+  ["Marketing", "/marketing"],
   ["Estudio", "/studio"],
   ["Plantillas", "/templates"],
   ["Informes", "/reports"],
@@ -51,6 +52,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
           ))}
         </nav>
+        <form action="/api/logout" method="post" className="logout-form">
+          <button type="submit">Cerrar sesion</button>
+        </form>
       </aside>
       <main className="main">{children}</main>
     </div>

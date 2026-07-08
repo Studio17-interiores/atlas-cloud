@@ -19,6 +19,8 @@ export type StudioTask = {
   importance: number;
   done: boolean;
   project_id: string | null;
+  due_date?: string | null;
+  area?: string | null;
 };
 
 export type StudioDecision = {
@@ -36,6 +38,7 @@ export type StudioMoneyMovement = {
   status: string;
   type: string;
   project_id: string | null;
+  category?: string | null;
 };
 
 export type StudioGoal = {
@@ -65,6 +68,7 @@ export type StudioDocument = {
   status: string;
   project_id: string | null;
   file_name: string | null;
+  storage_path: string | null;
 };
 
 export type StudioTemplate = {
@@ -73,6 +77,7 @@ export type StudioTemplate = {
   type: string;
   notes: string | null;
   file_name: string | null;
+  storage_path?: string | null;
 };
 
 export type StudioSupplier = {
@@ -88,6 +93,22 @@ export type StudioMeeting = {
   title: string;
   meeting_at: string;
   project_id: string | null;
+};
+
+export type StudioNote = {
+  id: string;
+  body: string;
+  project_id: string | null;
+  client_id: string | null;
+  created_at: string;
+};
+
+export type StudioAutomation = {
+  id: string;
+  name: string;
+  rule_type: string;
+  enabled: boolean;
+  config: Record<string, unknown>;
 };
 
 export async function getStudio17Data() {
@@ -111,13 +132,15 @@ export async function getStudio17Data() {
       documents: [] as StudioDocument[],
       templates: [] as StudioTemplate[],
       suppliers: [] as StudioSupplier[],
-      meetings: [] as StudioMeeting[]
+      meetings: [] as StudioMeeting[],
+      notes: [] as StudioNote[],
+      automations: [] as StudioAutomation[]
     };
   }
 
   const organizationId = organization.id as string;
 
-  const [projects, tasks, decisions, moneyMovements, goals, clients, documents, templates, suppliers, meetings] = await Promise.all([
+  const [projects, tasks, decisions, moneyMovements, goals, clients, documents, templates, suppliers, meetings, notes, automations] = await Promise.all([
     supabase
       .from("projects")
       .select("id, name, description, phase, health, budget, fee, fee_paid_percent, fee_type, client_id")
@@ -125,7 +148,7 @@ export async function getStudio17Data() {
       .order("created_at", { ascending: true }),
     supabase
       .from("tasks")
-      .select("id, title, importance, done, project_id")
+      .select("id, title, importance, done, project_id, due_date, area")
       .eq("organization_id", organizationId)
       .order("importance", { ascending: false }),
     supabase
@@ -136,7 +159,7 @@ export async function getStudio17Data() {
       .order("created_at", { ascending: true }),
     supabase
       .from("money_movements")
-      .select("id, title, amount, status, type, project_id")
+      .select("id, title, amount, status, type, project_id, category")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: true }),
     supabase
@@ -151,12 +174,12 @@ export async function getStudio17Data() {
       .order("created_at", { ascending: true }),
     supabase
       .from("documents")
-      .select("id, title, type, status, project_id, file_name")
+      .select("id, title, type, status, project_id, file_name, storage_path")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: true }),
     supabase
       .from("templates")
-      .select("id, title, type, notes, file_name")
+      .select("id, title, type, notes, file_name, storage_path")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: true }),
     supabase
@@ -167,6 +190,16 @@ export async function getStudio17Data() {
     supabase
       .from("meetings")
       .select("id, title, meeting_at, project_id")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("notes")
+      .select("id, body, project_id, client_id, created_at")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("automations")
+      .select("id, name, rule_type, enabled, config")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: true })
   ]);
@@ -182,7 +215,9 @@ export async function getStudio17Data() {
     documents: (documents.data ?? []) as StudioDocument[],
     templates: (templates.data ?? []) as StudioTemplate[],
     suppliers: (suppliers.data ?? []) as StudioSupplier[],
-    meetings: (meetings.data ?? []) as StudioMeeting[]
+    meetings: (meetings.data ?? []) as StudioMeeting[],
+    notes: (notes.data ?? []) as StudioNote[],
+    automations: (automations.data ?? []) as StudioAutomation[]
   };
 }
 

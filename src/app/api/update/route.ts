@@ -52,6 +52,55 @@ export async function POST(request: NextRequest) {
     await supabase.from("tasks").update({ done: String(form.done ?? "") === "true" }).eq("id", id);
   }
 
+  if (entity === "money") {
+    await supabase
+      .from("money_movements")
+      .update({
+        title: String(form.title ?? ""),
+        amount: number(form.amount),
+        status: String(form.status ?? "pending"),
+        type: String(form.type ?? "expense"),
+        category: String(form.category ?? "")
+      })
+      .eq("id", id);
+  }
+
+  if (entity === "client") {
+    await supabase
+      .from("clients")
+      .update({
+        name: String(form.name ?? ""),
+        estimated_value: number(form.estimated_value),
+        next_action: String(form.next_action ?? ""),
+        sentiment: String(form.sentiment ?? ""),
+        status: String(form.status ?? "active")
+      })
+      .eq("id", id);
+  }
+
+  if (entity === "decision") {
+    await supabase
+      .from("decisions")
+      .update({
+        title: String(form.title ?? ""),
+        owner: String(form.owner ?? ""),
+        status: String(form.status ?? "open"),
+        impact: String(form.impact ?? "")
+      })
+      .eq("id", id);
+  }
+
+  if (entity === "document") {
+    await supabase
+      .from("documents")
+      .update({
+        title: String(form.title ?? ""),
+        type: String(form.type ?? "other"),
+        status: String(form.status ?? "pending")
+      })
+      .eq("id", id);
+  }
+
   return NextResponse.redirect(new URL(`${redirect}?updated=1`, request.url), { status: 303 });
 }
 

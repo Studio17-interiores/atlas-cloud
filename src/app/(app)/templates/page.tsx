@@ -17,6 +17,9 @@ export default async function TemplatesPage() {
             <h2>{template.title}</h2>
             <p>{template.notes}</p>
             <p className="muted">{template.file_name ?? "Pendiente de archivo"}</p>
+            {"storage_path" in template && template.storage_path ? (
+              <a className="button-link subtle" href={`/api/download?path=${encodeURIComponent(String(template.storage_path))}`}>Descargar</a>
+            ) : null}
           </article>
         ))}
         {!data.templates.length ? (
