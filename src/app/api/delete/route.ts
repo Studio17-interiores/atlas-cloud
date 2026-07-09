@@ -39,6 +39,11 @@ export async function POST(request: NextRequest) {
 
   const supabase = createSupabaseAdminClient();
   const storagePath = String(form.storage_path ?? "");
+  const { data: organization } = await supabase
+    .from("organizations")
+    .select("id")
+    .eq("slug", "studio-17")
+    .maybeSingle();
 
   if ((entity === "document" || entity === "template") && storagePath) {
     await supabase.storage.from(BUCKET).remove([storagePath]);
@@ -46,5 +51,21 @@ export async function POST(request: NextRequest) {
 
   await supabase.from(table).delete().eq("id", id);
 
+  if (organization) {
+    await supabase
+      .from("history_events")
+      .insert({
+        organization_id: organization.id,
+        type: "delete",
+        body: `Borrado: ${entity}`,
+        project_id: optional(String(form.project_id ?? ""))
+      })
+      .then(() => null);
+  }
+
   return NextResponse.redirect(new URL(`${redirect}?deleted=1`, request.url), { status: 303 });
+}
+
+function optional(value: string) {
+  return value ? value : null;
 }

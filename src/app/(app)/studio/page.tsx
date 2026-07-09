@@ -6,6 +6,7 @@ const studioLinks = [
   ["/week", "Semana", "Plan semanal y tareas de foco."],
   ["/growth", "Objetivos", "Mensual, trimestral y anual."],
   ["/marketing", "Marketing", "Ideas, redes, SEO y contenido de obra."],
+  ["/followups", "Seguimientos", "Clientes, cobros y decisiones que no se pueden enfriar."],
   ["/templates", "Documentos", "Contratos, presupuestos, fotos, facturas y plantillas."],
   ["/reports", "Informes", "Resumen semanal listo para copiar."],
   ["/automations", "Alertas", "Reglas que evitan olvidos."],

@@ -165,12 +165,36 @@ export async function POST(request: NextRequest) {
         enabled: true
       });
     }
+
+    await logEvent(supabase, organizationId, "create", `Creado: ${entityLabel(entity, form)}`, optional(text(form.project_id)));
   } catch (error) {
     return redirectToNew(request, error instanceof Error ? error.message : "No se ha podido guardar.");
   }
 
   const redirect = text(form.redirect, "/new");
   return NextResponse.redirect(new URL(`${redirect}?created=1`, request.url), { status: 303 });
+}
+
+async function logEvent(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  organizationId: string,
+  type: string,
+  body: string,
+  projectId: string | null
+) {
+  await supabase
+    .from("history_events")
+    .insert({
+      organization_id: organizationId,
+      type,
+      body,
+      project_id: projectId
+    })
+    .then(() => null);
+}
+
+function entityLabel(entity: string, form: Payload) {
+  return text(form.title) || text(form.name) || text(form.body) || entity;
 }
 
 function text(value: FormDataEntryValue | undefined, fallback = "") {

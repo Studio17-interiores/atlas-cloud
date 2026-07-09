@@ -169,6 +169,16 @@ export async function POST(request: NextRequest) {
       .eq("id", id);
   }
 
+  const { data: organization } = await supabase
+    .from("organizations")
+    .select("id")
+    .eq("slug", "studio-17")
+    .maybeSingle();
+
+  if (organization) {
+    await logEvent(supabase, organization.id as string, "update", `Actualizado: ${entity}`, optional(String(form.project_id ?? "")));
+  }
+
   return NextResponse.redirect(new URL(`${redirect}?updated=1`, request.url), { status: 303 });
 }
 
@@ -196,6 +206,24 @@ function tomorrowIsoDate() {
   const date = new Date();
   date.setDate(date.getDate() + 1);
   return date.toISOString().slice(0, 10);
+}
+
+async function logEvent(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  organizationId: string,
+  type: string,
+  body: string,
+  projectId: string | null
+) {
+  await supabase
+    .from("history_events")
+    .insert({
+      organization_id: organizationId,
+      type,
+      body,
+      project_id: projectId
+    })
+    .then(() => null);
 }
 
 function redirectWithMessage(request: NextRequest, redirect: string, message: string) {
