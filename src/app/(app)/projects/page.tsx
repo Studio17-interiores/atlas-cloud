@@ -51,18 +51,44 @@ export default async function ProjectsPage() {
                 <span>Pendiente {formatEuro(pending)}</span>
               </div>
               <h3>Ahora mismo</h3>
-              <ul className="clean-list">
+              <div className="table-list">
                 {projectTasks.slice(0, 2).map((task) => (
-                  <li key={task.id}>{task.title}</li>
+                  <div className="row" key={task.id}>
+                    <div>
+                      <strong>{task.title}</strong>
+                      <p className="muted">Tarea pendiente</p>
+                    </div>
+                    <form action="/api/update" method="post">
+                      <input type="hidden" name="entity" value="task" />
+                      <input type="hidden" name="id" value={task.id} />
+                      <input type="hidden" name="done" value="true" />
+                      <input type="hidden" name="redirect" value="/projects" />
+                      <button type="submit">Hecho</button>
+                    </form>
+                  </div>
                 ))}
                 {projectDecisions.slice(0, 1).map((decision) => (
-                  <li key={decision.id}>{decision.title}</li>
+                  <div className="row" key={decision.id}>
+                    <div>
+                      <strong>{decision.title}</strong>
+                      <p className="muted">Decision pendiente</p>
+                    </div>
+                    <form action="/api/convert/decision-task" method="post">
+                      <input type="hidden" name="decision_id" value={decision.id} />
+                      <input type="hidden" name="project_id" value={project.id} />
+                      <input type="hidden" name="title" value={decision.title} />
+                      <input type="hidden" name="redirect" value="/projects" />
+                      <button className="subtle" type="submit">Crear tarea</button>
+                    </form>
+                  </div>
                 ))}
-                {!projectTasks.length && !projectDecisions.length ? <li>Sin bloqueos importantes registrados.</li> : null}
-              </ul>
-              <Link className="button-link subtle" href={`/projects/${project.id}`}>
-                Abrir ficha completa
-              </Link>
+                {!projectTasks.length && !projectDecisions.length ? <p className="muted">Sin bloqueos importantes registrados.</p> : null}
+              </div>
+              <div className="action-row">
+                <Link className="button-link subtle" href={`/projects/${project.id}`}>Abrir ficha</Link>
+                <Link className="button-link subtle" href="/new?type=task">+ Tarea</Link>
+                <Link className="button-link subtle" href="/new?type=document-upload">Subir documento</Link>
+              </div>
               <details className="edit-box">
                 <summary>Editar rapido</summary>
                 <form action="/api/update" method="post" className="quick-form">

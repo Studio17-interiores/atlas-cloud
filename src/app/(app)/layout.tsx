@@ -3,22 +3,11 @@ import type { ReactNode } from "react";
 
 const navItems: Array<[string, string]> = [
   ["Hoy", "/"],
-  ["ATLAS IA", "/assistant"],
-  ["Buscar", "/search"],
-  ["Editar", "/edit"],
-  ["Semana", "/week"],
-  ["Calendario", "/calendar"],
-  ["Seguimientos", "/followups"],
   ["Proyectos", "/projects"],
   ["Clientes", "/clients"],
   ["Dinero", "/money"],
-  ["Objetivos", "/growth"],
-  ["Marketing", "/marketing"],
-  ["Estudio", "/studio"],
-  ["Plantillas", "/templates"],
-  ["Informes", "/reports"],
-  ["Automatizaciones", "/automations"],
-  ["Sistema", "/system"]
+  ["Calendario", "/calendar"],
+  ["Studio", "/studio"]
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -63,7 +52,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <Link href="/">Hoy</Link>
         <Link href="/new?type=task">+ Nuevo</Link>
         <Link href="/new?type=document-upload">Subir</Link>
-        <Link href="/edit">Editar</Link>
+        <Link href="/projects">Proyectos</Link>
       </nav>
     </div>
   );

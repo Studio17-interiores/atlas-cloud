@@ -141,6 +141,11 @@ textarea {
   background-position: center;
 }
 
+.compact-hero {
+  padding-bottom: 22px;
+  padding-top: 22px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -231,6 +236,7 @@ textarea {
   align-items: center;
   border-top: 1px solid var(--line);
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   justify-content: space-between;
   padding: 12px 0 2px;
@@ -436,6 +442,11 @@ button.subtle {
   cursor: pointer;
   font-weight: 800;
   margin-bottom: 10px;
+}
+
+.full-details {
+  flex-basis: 100%;
+  width: 100%;
 }
 
 .edit-row {
