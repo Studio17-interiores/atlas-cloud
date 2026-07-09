@@ -47,6 +47,30 @@ export default async function GrowthPage() {
                 <span style={{ width: `${percent}%` }} />
               </div>
               <p><strong>{mood}.</strong> Actual: {Number(goal.current_value)} / Objetivo: {Number(goal.target_value)}</p>
+              <div className="action-row">
+                <form action="/api/update" method="post">
+                  <input type="hidden" name="entity" value="goal" />
+                  <input type="hidden" name="id" value={goal.id} />
+                  <input type="hidden" name="redirect" value="/growth" />
+                  <input type="hidden" name="title" value={goal.title} />
+                  <input type="hidden" name="period" value={goal.period} />
+                  <input type="hidden" name="current_value" value={Number(goal.current_value) + 1} />
+                  <input type="hidden" name="target_value" value={Number(goal.target_value)} />
+                  <input type="hidden" name="actions" value={(goal.actions ?? []).join("\n")} />
+                  <button type="submit">Sumar avance</button>
+                </form>
+                <form action="/api/update" method="post">
+                  <input type="hidden" name="entity" value="goal" />
+                  <input type="hidden" name="id" value={goal.id} />
+                  <input type="hidden" name="redirect" value="/growth" />
+                  <input type="hidden" name="title" value={goal.title} />
+                  <input type="hidden" name="period" value={goal.period} />
+                  <input type="hidden" name="current_value" value="0" />
+                  <input type="hidden" name="target_value" value={Number(goal.target_value)} />
+                  <input type="hidden" name="actions" value={(goal.actions ?? []).join("\n")} />
+                  <button className="subtle" type="submit">Reiniciar</button>
+                </form>
+              </div>
               <h3>Acciones para mejorar</h3>
               <ul className="clean-list">
                 {(goal.actions ?? []).map((action) => (

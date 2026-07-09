@@ -539,6 +539,46 @@ button.subtle {
   min-width: 260px;
 }
 
+.week-board,
+.metric-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.week-day,
+.metric-strip div {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.week-day p {
+  color: var(--muted);
+  min-height: 42px;
+}
+
+.week-day a {
+  color: var(--accent);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.metric-strip {
+  margin-top: 16px;
+}
+
+.metric-strip strong {
+  display: block;
+  font-size: 1.35rem;
+}
+
+.metric-strip span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
 .edit-row {
   align-items: center;
   border-top: 1px solid var(--line);
