@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         project_id: optional(text(form.project_id)),
         title: text(form.title),
         area: text(form.area),
+        due_date: optional(text(form.due_date)),
         importance: number(form.importance, 7),
         done: false
       });

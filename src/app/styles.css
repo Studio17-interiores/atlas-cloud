@@ -449,6 +449,39 @@ button.subtle {
   width: 100%;
 }
 
+.featured-row {
+  background: #fffaf0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.mini-list {
+  margin-top: 12px;
+}
+
+.section-summary {
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 900;
+  list-style: none;
+}
+
+.section-summary::-webkit-details-marker {
+  display: none;
+}
+
+.section-summary::after {
+  color: var(--muted);
+  content: " abrir";
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.inline-form {
+  margin-top: 8px;
+}
+
 .edit-row {
   align-items: center;
   border-top: 1px solid var(--line);

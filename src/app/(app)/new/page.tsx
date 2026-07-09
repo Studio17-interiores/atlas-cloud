@@ -97,6 +97,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
             <input name="title" placeholder="Que hay que hacer" required />
             <ProjectSelect projects={data.projects} />
             <input name="area" placeholder="Area" />
+            <input name="due_date" type="date" />
             <input name="importance" placeholder="Importancia 1-10" type="number" min="1" max="10" defaultValue="7" />
           </QuickForm>
         ) : null}

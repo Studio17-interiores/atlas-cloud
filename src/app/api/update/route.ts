@@ -92,15 +92,16 @@ export async function POST(request: NextRequest) {
   }
 
   if (entity === "decision") {
-    await supabase
-      .from("decisions")
-      .update({
-        title: String(form.title ?? ""),
-        owner: String(form.owner ?? ""),
-        status: String(form.status ?? "open"),
-        impact: String(form.impact ?? "")
-      })
-      .eq("id", id);
+    const update: Record<string, unknown> = "title" in form
+      ? {
+          title: String(form.title ?? ""),
+          owner: String(form.owner ?? ""),
+          status: String(form.status ?? "open"),
+          impact: String(form.impact ?? "")
+        }
+      : { status: String(form.status ?? "closed") };
+
+    await supabase.from("decisions").update(update).eq("id", id);
   }
 
   if (entity === "document") {
