@@ -20,6 +20,7 @@ const options = [
 type NewPageProps = {
   searchParams?: {
     type?: string;
+    project?: string;
     created?: string;
     error?: string;
     uploaded?: string;
@@ -29,6 +30,7 @@ type NewPageProps = {
 export default async function NewPage({ searchParams }: NewPageProps) {
   const data = await getStudio17Data();
   const selected = searchParams?.type ?? "";
+  const selectedProjectId = searchParams?.project ?? "";
   const created = searchParams?.created === "1";
   const uploaded = searchParams?.uploaded === "1";
   const error = searchParams?.error;
@@ -63,7 +65,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "client" ? (
-          <QuickForm title="Cliente o lead" entity="client" selected={selected}>
+          <QuickForm title="Cliente o lead" entity="client" selected={selected} projectId={selectedProjectId}>
             <input name="name" placeholder="Nombre" required />
             <select name="type" defaultValue="client">
               <option value="client">Cliente</option>
@@ -76,7 +78,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "project" ? (
-          <QuickForm title="Proyecto" entity="project" selected={selected}>
+          <QuickForm title="Proyecto" entity="project" selected={selected} projectId={selectedProjectId}>
             <input name="name" placeholder="Nombre del proyecto" required />
             <ClientSelect clients={data.clients} />
             <textarea name="description" placeholder="Descripcion corta" />
@@ -93,9 +95,9 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "task" ? (
-          <QuickForm title="Tarea" entity="task" selected={selected}>
+          <QuickForm title="Tarea" entity="task" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Que hay que hacer" required />
-            <ProjectSelect projects={data.projects} />
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
             <input name="area" placeholder="Area" />
             <input name="due_date" type="date" />
             <input name="importance" placeholder="Importancia 1-10" type="number" min="1" max="10" defaultValue="7" />
@@ -103,9 +105,9 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "money" ? (
-          <QuickForm title="Gasto, cobro o pago" entity="money" selected={selected}>
+          <QuickForm title="Gasto, cobro o pago" entity="money" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Concepto" required />
-            <ProjectSelect projects={data.projects} />
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
             <select name="type" defaultValue="expense">
               <option value="expense">Gasto</option>
               <option value="income">Cobro</option>
@@ -122,7 +124,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "goal" ? (
-          <QuickForm title="Objetivo real" entity="goal" selected={selected}>
+          <QuickForm title="Objetivo real" entity="goal" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Objetivo" required />
             <select name="period" defaultValue="month">
               <option value="month">Mensual</option>
@@ -136,9 +138,9 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "document-upload" ? (
-          <UploadForm title="Subir documento de proyecto" kind="document" selected={selected}>
+          <UploadForm title="Subir documento de proyecto" kind="document" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Titulo del documento" required />
-            <ProjectSelect projects={data.projects} />
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
             <select name="type" defaultValue="other">
               <option value="contract">Contrato</option>
               <option value="photo">Fotos</option>
@@ -151,7 +153,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "template-upload" ? (
-          <UploadForm title="Subir plantilla" kind="template" selected={selected}>
+          <UploadForm title="Subir plantilla" kind="template" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Titulo de plantilla" required />
             <select name="type" defaultValue="template">
               <option value="contract">Contrato</option>
@@ -164,18 +166,18 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "meeting" ? (
-          <QuickForm title="Reunion" entity="meeting" selected={selected}>
+          <QuickForm title="Reunion" entity="meeting" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Titulo" required />
-            <ProjectSelect projects={data.projects} />
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
             <input name="meeting_at" type="datetime-local" required />
             <textarea name="prep" placeholder={"Preparacion\nUna linea por punto"} />
           </QuickForm>
         ) : null}
 
         {selected === "decision" ? (
-          <QuickForm title="Decision" entity="decision" selected={selected}>
+          <QuickForm title="Decision" entity="decision" selected={selected} projectId={selectedProjectId}>
             <input name="title" placeholder="Decision pendiente" required />
-            <ProjectSelect projects={data.projects} />
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
             <input name="owner" placeholder="Quien decide" />
             <input name="due_date" type="date" />
             <textarea name="impact" placeholder="Por que importa" />
@@ -183,7 +185,7 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "supplier" ? (
-          <QuickForm title="Proveedor" entity="supplier" selected={selected}>
+          <QuickForm title="Proveedor" entity="supplier" selected={selected} projectId={selectedProjectId}>
             <input name="name" placeholder="Nombre" required />
             <input name="category" placeholder="Categoria" />
             <input name="reliability" placeholder="Fiabilidad 0-100" type="number" min="0" max="100" defaultValue="70" />
@@ -192,14 +194,14 @@ export default async function NewPage({ searchParams }: NewPageProps) {
         ) : null}
 
         {selected === "note" ? (
-          <QuickForm title="Nota de proyecto" entity="note" selected={selected}>
-            <ProjectSelect projects={data.projects} />
+          <QuickForm title="Nota de proyecto" entity="note" selected={selected} projectId={selectedProjectId}>
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
             <textarea name="body" placeholder="Nota" required />
           </QuickForm>
         ) : null}
 
         {selected === "automation" ? (
-          <QuickForm title="Automatizacion simple" entity="automation" selected={selected}>
+          <QuickForm title="Automatizacion simple" entity="automation" selected={selected} projectId={selectedProjectId}>
             <input name="name" placeholder="Nombre de la regla" required />
             <select name="rule_type" defaultValue="manual_reminder">
               <option value="manual_reminder">Recordatorio manual</option>
@@ -215,13 +217,15 @@ export default async function NewPage({ searchParams }: NewPageProps) {
   );
 }
 
-function QuickForm({ title, entity, selected, children }: { title: string; entity: string; selected: string; children: ReactNode }) {
+function QuickForm({ title, entity, selected, projectId, children }: { title: string; entity: string; selected: string; projectId: string; children: ReactNode }) {
+  const redirect = `/new?type=${selected}${projectId ? `&project=${projectId}` : ""}`;
+
   return (
     <article className="panel large">
       <h2>{title}</h2>
       <form action="/api/create" method="post" className="quick-form">
         <input type="hidden" name="entity" value={entity} />
-        <input type="hidden" name="redirect" value={`/new?type=${selected}`} />
+        <input type="hidden" name="redirect" value={redirect} />
         {children}
         <button type="submit">Guardar</button>
       </form>
@@ -229,13 +233,15 @@ function QuickForm({ title, entity, selected, children }: { title: string; entit
   );
 }
 
-function UploadForm({ title, kind, selected, children }: { title: string; kind: string; selected: string; children: ReactNode }) {
+function UploadForm({ title, kind, selected, projectId, children }: { title: string; kind: string; selected: string; projectId: string; children: ReactNode }) {
+  const redirect = `/new?type=${selected}${projectId ? `&project=${projectId}` : ""}`;
+
   return (
     <article className="panel large upload-panel">
       <h2>{title}</h2>
       <form action="/api/upload" method="post" encType="multipart/form-data" className="quick-form">
         <input type="hidden" name="kind" value={kind} />
-        <input type="hidden" name="redirect" value={`/new?type=${selected}`} />
+        <input type="hidden" name="redirect" value={redirect} />
         {children}
         <label className="dropzone">
           <strong>Arrastra aqui el archivo o pulsa para elegirlo</strong>
@@ -248,9 +254,9 @@ function UploadForm({ title, kind, selected, children }: { title: string; kind: 
   );
 }
 
-function ProjectSelect({ projects }: { projects: Array<{ id: string; name: string }> }) {
+function ProjectSelect({ projects, defaultProjectId = "" }: { projects: Array<{ id: string; name: string }>; defaultProjectId?: string }) {
   return (
-    <select name="project_id" defaultValue="">
+    <select name="project_id" defaultValue={defaultProjectId}>
       <option value="">Sin proyecto</option>
       {projects.map((project) => (
         <option key={project.id} value={project.id}>{project.name}</option>

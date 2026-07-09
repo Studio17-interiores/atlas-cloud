@@ -86,8 +86,8 @@ export default async function ProjectsPage() {
               </div>
               <div className="action-row">
                 <Link className="button-link subtle" href={`/projects/${project.id}`}>Abrir ficha</Link>
-                <Link className="button-link subtle" href="/new?type=task">+ Tarea</Link>
-                <Link className="button-link subtle" href="/new?type=document-upload">Subir documento</Link>
+                <Link className="button-link subtle" href={`/new?type=task&project=${project.id}`}>+ Tarea</Link>
+                <Link className="button-link subtle" href={`/new?type=document-upload&project=${project.id}`}>Subir documento</Link>
               </div>
               <details className="edit-box">
                 <summary>Editar rapido</summary>
