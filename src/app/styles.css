@@ -364,9 +364,40 @@ button {
 .calendar-pill {
   background: #f4eee5;
   border-radius: 7px;
-  display: block;
+  display: grid;
+  gap: 4px;
   font-size: 0.78rem;
   margin-top: 6px;
+  padding: 5px 6px;
+}
+
+.calendar-pill small {
+  color: var(--muted);
+}
+
+.calendar-day-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.calendar-actions {
+  display: grid;
+  gap: 3px;
+  text-align: right;
+}
+
+.calendar-actions a {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.tiny-button {
+  border-radius: 6px;
+  font-size: 0.72rem;
   padding: 5px 6px;
 }
 
