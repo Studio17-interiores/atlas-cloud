@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export type StudioProject = {
@@ -120,6 +121,7 @@ export type StudioHistoryEvent = {
 };
 
 export async function getStudio17Data() {
+  noStore();
   const supabase = createSupabaseAdminClient();
 
   const { data: organization } = await supabase

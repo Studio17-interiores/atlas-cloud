@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  revalidatePath("/", "layout");
   return redirectWithMessage(request, redirect, "uploaded", "1");
 }
 

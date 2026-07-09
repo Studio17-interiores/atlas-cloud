@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -42,7 +43,10 @@ export async function POST(request: NextRequest) {
     await supabase.from("decisions").update({ status: "converted" }).eq("id", decisionId);
   }
 
-  return NextResponse.redirect(new URL(`${redirect}?created=1`, request.url), { status: 303 });
+  revalidatePath("/", "layout");
+  const url = new URL(redirect, request.url);
+  url.searchParams.set("created", "1");
+  return NextResponse.redirect(url, { status: 303 });
 }
 
 function optional(value: string) {

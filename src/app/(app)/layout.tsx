@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
+import { ActionFeedback } from "./action-feedback";
 
 const navItems: Array<[string, string]> = [
   ["Hoy", "/"],
@@ -47,7 +48,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <button type="submit">Cerrar sesion</button>
         </form>
       </aside>
-      <main className="main">{children}</main>
+      <main className="main">
+        <Suspense fallback={null}>
+          <ActionFeedback />
+        </Suspense>
+        {children}
+      </main>
       <nav className="mobile-dock">
         <Link href="/">Hoy</Link>
         <Link href="/new?type=task">+ Nuevo</Link>

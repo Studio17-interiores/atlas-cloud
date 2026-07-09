@@ -303,6 +303,10 @@ button {
   border-color: #e0c1bd;
 }
 
+.floating-notice {
+  margin: 0 0 14px;
+}
+
 .choice-grid {
   display: grid;
   gap: 10px;

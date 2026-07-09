@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -179,7 +180,8 @@ export async function POST(request: NextRequest) {
     await logEvent(supabase, organization.id as string, "update", `Actualizado: ${entity}`, optional(String(form.project_id ?? "")));
   }
 
-  return NextResponse.redirect(new URL(`${redirect}?updated=1`, request.url), { status: 303 });
+  revalidatePath("/", "layout");
+  return redirectWithFlag(request, redirect, "updated", "1");
 }
 
 function number(value: FormDataEntryValue | undefined, fallback = 0) {
@@ -229,5 +231,11 @@ async function logEvent(
 function redirectWithMessage(request: NextRequest, redirect: string, message: string) {
   const url = new URL(redirect, request.url);
   url.searchParams.set("error", message);
+  return NextResponse.redirect(url, { status: 303 });
+}
+
+function redirectWithFlag(request: NextRequest, redirect: string, key: string, value: string) {
+  const url = new URL(redirect, request.url);
+  url.searchParams.set(key, value);
   return NextResponse.redirect(url, { status: 303 });
 }

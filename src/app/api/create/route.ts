@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 
@@ -172,7 +173,8 @@ export async function POST(request: NextRequest) {
   }
 
   const redirect = text(form.redirect, "/new");
-  return NextResponse.redirect(new URL(`${redirect}?created=1`, request.url), { status: 303 });
+  revalidatePath("/", "layout");
+  return redirectWithFlag(request, redirect, "created", "1");
 }
 
 async function logEvent(
@@ -224,5 +226,11 @@ function dateTime(value: string) {
 function redirectToNew(request: NextRequest, message: string) {
   const url = new URL("/new", request.url);
   url.searchParams.set("error", message);
+  return NextResponse.redirect(url, { status: 303 });
+}
+
+function redirectWithFlag(request: NextRequest, path: string, key: string, value: string) {
+  const url = new URL(path, request.url);
+  url.searchParams.set(key, value);
   return NextResponse.redirect(url, { status: 303 });
 }

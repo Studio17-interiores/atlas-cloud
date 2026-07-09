@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -63,9 +64,16 @@ export async function POST(request: NextRequest) {
       .then(() => null);
   }
 
-  return NextResponse.redirect(new URL(`${redirect}?deleted=1`, request.url), { status: 303 });
+  revalidatePath("/", "layout");
+  return redirectWithFlag(request, redirect, "deleted", "1");
 }
 
 function optional(value: string) {
   return value ? value : null;
+}
+
+function redirectWithFlag(request: NextRequest, redirect: string, key: string, value: string) {
+  const url = new URL(redirect, request.url);
+  url.searchParams.set(key, value);
+  return NextResponse.redirect(url, { status: 303 });
 }
