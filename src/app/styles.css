@@ -601,6 +601,36 @@ button.subtle {
   padding: 6px 9px;
 }
 
+.pipeline-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  margin-top: 18px;
+}
+
+.pipeline-lane {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.pipeline-lane h2 {
+  font-size: 1rem;
+  margin-top: 0;
+}
+
+.pipeline-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.pipeline-card .panel-header {
+  gap: 8px;
+}
+
 .edit-row {
   align-items: center;
   border-top: 1px solid var(--line);
