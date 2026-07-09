@@ -27,6 +27,19 @@ export default async function ClientsPage() {
               <strong>Siguiente accion</strong>
               <p>{client.next_action ?? "Definir proximo seguimiento."}</p>
             </div>
+            <div className="action-row">
+              {client.next_action ? (
+                <form action="/api/update" method="post">
+                  <input type="hidden" name="entity" value="client" />
+                  <input type="hidden" name="id" value={client.id} />
+                  <input type="hidden" name="action" value="followed_up" />
+                  <input type="hidden" name="status" value={client.status} />
+                  <input type="hidden" name="redirect" value="/clients" />
+                  <button type="submit">Seguimiento hecho</button>
+                </form>
+              ) : null}
+              <Link className="button-link subtle" href={`/new?type=task`}>Crear tarea</Link>
+            </div>
             <details className="edit-box">
               <summary>Editar cliente</summary>
               <form action="/api/update" method="post" className="quick-form">

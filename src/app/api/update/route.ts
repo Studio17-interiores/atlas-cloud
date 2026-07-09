@@ -23,16 +23,23 @@ export async function POST(request: NextRequest) {
   }
 
   if (entity === "project") {
-    await supabase
-      .from("projects")
-      .update({
-        phase: String(form.phase ?? "concept"),
-        health: number(form.health, 70),
-        budget: number(form.budget),
-        fee: number(form.fee),
-        fee_paid_percent: number(form.fee_paid_percent)
-      })
-      .eq("id", id);
+    const update: Record<string, unknown> = {
+      phase: String(form.phase ?? "concept"),
+      health: number(form.health, 70),
+      budget: number(form.budget),
+      fee: number(form.fee),
+      fee_paid_percent: number(form.fee_paid_percent)
+    };
+
+    if ("name" in form) {
+      update.name = String(form.name ?? "");
+    }
+
+    if ("description" in form) {
+      update.description = String(form.description ?? "");
+    }
+
+    await supabase.from("projects").update(update).eq("id", id);
   }
 
   if (entity === "goal") {
@@ -79,15 +86,20 @@ export async function POST(request: NextRequest) {
   }
 
   if (entity === "client") {
+    const action = String(form.action ?? "");
+    const update = action === "followed_up"
+      ? { next_action: "", status: String(form.status ?? "active") }
+      : {
+          name: String(form.name ?? ""),
+          estimated_value: number(form.estimated_value),
+          next_action: String(form.next_action ?? ""),
+          sentiment: String(form.sentiment ?? ""),
+          status: String(form.status ?? "active")
+        };
+
     await supabase
       .from("clients")
-      .update({
-        name: String(form.name ?? ""),
-        estimated_value: number(form.estimated_value),
-        next_action: String(form.next_action ?? ""),
-        sentiment: String(form.sentiment ?? ""),
-        status: String(form.status ?? "active")
-      })
+      .update(update)
       .eq("id", id);
   }
 

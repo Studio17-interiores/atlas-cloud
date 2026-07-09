@@ -57,7 +57,17 @@ export default async function TodayPage() {
           <p className="eyebrow">Clientes que no se pueden enfriar</p>
           <ul className="clean-list">
             {coldClients.map((client) => (
-              <li key={client.id}><strong>{client.name}:</strong> {client.next_action}</li>
+              <li key={client.id}>
+                <strong>{client.name}:</strong> {client.next_action}
+                <form action="/api/update" method="post" className="inline-action">
+                  <input type="hidden" name="entity" value="client" />
+                  <input type="hidden" name="id" value={client.id} />
+                  <input type="hidden" name="action" value="followed_up" />
+                  <input type="hidden" name="status" value={client.status} />
+                  <input type="hidden" name="redirect" value="/" />
+                  <button className="subtle tiny-button" type="submit">Hecho</button>
+                </form>
+              </li>
             ))}
             {!coldClients.length ? <li>Sin seguimientos urgentes.</li> : null}
           </ul>

@@ -513,6 +513,32 @@ button.subtle {
   margin-top: 8px;
 }
 
+.inline-action {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.report-copy {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 280px;
+  padding: 14px;
+  resize: vertical;
+  width: 100%;
+}
+
+.small-edit {
+  margin: 0;
+}
+
+.small-edit .quick-form {
+  margin-top: 8px;
+  min-width: 260px;
+}
+
 .edit-row {
   align-items: center;
   border-top: 1px solid var(--line);
