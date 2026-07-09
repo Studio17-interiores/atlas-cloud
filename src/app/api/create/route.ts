@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
   try {
     if (entity === "client") {
-      await supabase.from("clients").insert({
+      await must(supabase.from("clients").insert({
         organization_id: organizationId,
         name: text(form.name),
         type: text(form.type, "client"),
@@ -40,11 +40,11 @@ export async function POST(request: NextRequest) {
         estimated_value: number(form.estimated_value),
         next_action: text(form.next_action),
         sentiment: text(form.sentiment)
-      });
+      }));
     }
 
     if (entity === "project") {
-      await supabase.from("projects").insert({
+      await must(supabase.from("projects").insert({
         organization_id: organizationId,
         client_id: optional(text(form.client_id)),
         name: text(form.name),
@@ -54,11 +54,11 @@ export async function POST(request: NextRequest) {
         budget: number(form.budget),
         fee: number(form.fee),
         fee_paid_percent: number(form.fee_paid_percent)
-      });
+      }));
     }
 
     if (entity === "task") {
-      await supabase.from("tasks").insert({
+      await must(supabase.from("tasks").insert({
         organization_id: organizationId,
         project_id: optional(text(form.project_id)),
         title: text(form.title),
@@ -66,11 +66,11 @@ export async function POST(request: NextRequest) {
         due_date: optional(text(form.due_date)),
         importance: number(form.importance, 7),
         done: false
-      });
+      }));
     }
 
     if (entity === "decision") {
-      await supabase.from("decisions").insert({
+      await must(supabase.from("decisions").insert({
         organization_id: organizationId,
         project_id: optional(text(form.project_id)),
         title: text(form.title),
@@ -78,11 +78,11 @@ export async function POST(request: NextRequest) {
         due_date: optional(text(form.due_date)),
         status: "open",
         impact: text(form.impact)
-      });
+      }));
     }
 
     if (entity === "money") {
-      await supabase.from("money_movements").insert({
+      await must(supabase.from("money_movements").insert({
         organization_id: organizationId,
         project_id: optional(text(form.project_id)),
         type: text(form.type, "expense"),
@@ -90,11 +90,11 @@ export async function POST(request: NextRequest) {
         category: text(form.category),
         amount: number(form.amount),
         status: text(form.status, "pending")
-      });
+      }));
     }
 
     if (entity === "goal") {
-      await supabase.from("goals").insert({
+      await must(supabase.from("goals").insert({
         organization_id: organizationId,
         period: text(form.period, "month"),
         title: text(form.title),
@@ -102,60 +102,60 @@ export async function POST(request: NextRequest) {
         target_value: number(form.target_value, 1),
         kind: text(form.kind),
         actions: splitLines(text(form.actions))
-      });
+      }));
     }
 
     if (entity === "note") {
-      await supabase.from("notes").insert({
+      await must(supabase.from("notes").insert({
         organization_id: organizationId,
         project_id: optional(text(form.project_id)),
         body: text(form.body)
-      });
+      }));
     }
 
     if (entity === "document") {
-      await supabase.from("documents").insert({
+      await must(supabase.from("documents").insert({
         organization_id: organizationId,
         project_id: optional(text(form.project_id)),
         title: text(form.title),
         type: text(form.type, "other"),
         status: text(form.status, "pending"),
         file_name: text(form.file_name)
-      });
+      }));
     }
 
     if (entity === "template") {
-      await supabase.from("templates").insert({
+      await must(supabase.from("templates").insert({
         organization_id: organizationId,
         title: text(form.title),
         type: text(form.type, "other"),
         notes: text(form.notes),
         file_name: text(form.file_name)
-      });
+      }));
     }
 
     if (entity === "meeting") {
-      await supabase.from("meetings").insert({
+      await must(supabase.from("meetings").insert({
         organization_id: organizationId,
         project_id: optional(text(form.project_id)),
         title: text(form.title),
         meeting_at: dateTime(text(form.meeting_at)),
         prep: splitLines(text(form.prep))
-      });
+      }));
     }
 
     if (entity === "supplier") {
-      await supabase.from("suppliers").insert({
+      await must(supabase.from("suppliers").insert({
         organization_id: organizationId,
         name: text(form.name),
         category: text(form.category),
         reliability: number(form.reliability, 70),
         notes: text(form.notes)
-      });
+      }));
     }
 
     if (entity === "automation") {
-      await supabase.from("automations").insert({
+      await must(supabase.from("automations").insert({
         organization_id: organizationId,
         name: text(form.name),
         rule_type: text(form.rule_type, "manual_reminder"),
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
           days: number(form.days, 1)
         },
         enabled: true
-      });
+      }));
     }
 
     await logEvent(supabase, organizationId, "create", `Creado: ${entityLabel(entity, form)}`, optional(text(form.project_id)));
@@ -227,6 +227,13 @@ function redirectToNew(request: NextRequest, message: string) {
   const url = new URL("/new", request.url);
   url.searchParams.set("error", message);
   return NextResponse.redirect(url, { status: 303 });
+}
+
+async function must(result: PromiseLike<{ error: { message: string } | null }>) {
+  const { error } = await result;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 function redirectWithFlag(request: NextRequest, path: string, key: string, value: string) {

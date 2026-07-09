@@ -50,7 +50,10 @@ export async function POST(request: NextRequest) {
     await supabase.storage.from(BUCKET).remove([storagePath]);
   }
 
-  await supabase.from(table).delete().eq("id", id);
+  const { error: deleteError } = await supabase.from(table).delete().eq("id", id);
+  if (deleteError) {
+    return redirectWithMessage(request, redirect, deleteError.message);
+  }
 
   if (organization) {
     await supabase
@@ -70,6 +73,12 @@ export async function POST(request: NextRequest) {
 
 function optional(value: string) {
   return value ? value : null;
+}
+
+function redirectWithMessage(request: NextRequest, redirect: string, message: string) {
+  const url = new URL(redirect, request.url);
+  url.searchParams.set("error", message);
+  return NextResponse.redirect(url, { status: 303 });
 }
 
 function redirectWithFlag(request: NextRequest, redirect: string, key: string, value: string) {

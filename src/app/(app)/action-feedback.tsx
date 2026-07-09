@@ -4,6 +4,11 @@ import { useSearchParams } from "next/navigation";
 
 export function ActionFeedback() {
   const params = useSearchParams();
+  const error = params.get("error");
+
+  if (error) {
+    return <p className="notice error floating-notice">No se ha podido hacer: {error}</p>;
+  }
 
   if (params.get("created") === "1") {
     return <p className="notice floating-notice">Guardado. ATLAS ya lo tiene actualizado.</p>;

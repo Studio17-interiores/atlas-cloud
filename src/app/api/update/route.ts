@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     return redirectWithMessage(request, redirect, "Falta el identificador.");
   }
 
+  try {
   if (entity === "project") {
     const update: Record<string, unknown> = {
       phase: String(form.phase ?? "concept"),
@@ -40,11 +41,11 @@ export async function POST(request: NextRequest) {
       update.description = String(form.description ?? "");
     }
 
-    await supabase.from("projects").update(update).eq("id", id);
+    await must(supabase.from("projects").update(update).eq("id", id));
   }
 
   if (entity === "goal") {
-    await supabase
+    await must(supabase
       .from("goals")
       .update({
         period: String(form.period ?? "month"),
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
         target_value: number(form.target_value, 1),
         actions: splitLines(String(form.actions ?? ""))
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "task") {
@@ -70,11 +71,11 @@ export async function POST(request: NextRequest) {
           done: String(form.done ?? "") === "true"
         };
 
-    await supabase.from("tasks").update(update).eq("id", id);
+    await must(supabase.from("tasks").update(update).eq("id", id));
   }
 
   if (entity === "money") {
-    await supabase
+    await must(supabase
       .from("money_movements")
       .update({
         title: String(form.title ?? ""),
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
         type: String(form.type ?? "expense"),
         category: String(form.category ?? "")
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "client") {
@@ -98,10 +99,10 @@ export async function POST(request: NextRequest) {
           status: String(form.status ?? "active")
         };
 
-    await supabase
+    await must(supabase
       .from("clients")
       .update(update)
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "decision") {
@@ -114,33 +115,33 @@ export async function POST(request: NextRequest) {
         }
       : { status: String(form.status ?? "closed") };
 
-    await supabase.from("decisions").update(update).eq("id", id);
+    await must(supabase.from("decisions").update(update).eq("id", id));
   }
 
   if (entity === "document") {
-    await supabase
+    await must(supabase
       .from("documents")
       .update({
         title: String(form.title ?? ""),
         type: String(form.type ?? "other"),
         status: String(form.status ?? "pending")
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "template") {
-    await supabase
+    await must(supabase
       .from("templates")
       .update({
         title: String(form.title ?? ""),
         type: String(form.type ?? "template"),
         notes: String(form.notes ?? "")
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "supplier") {
-    await supabase
+    await must(supabase
       .from("suppliers")
       .update({
         name: String(form.name ?? ""),
@@ -148,26 +149,26 @@ export async function POST(request: NextRequest) {
         reliability: number(form.reliability, 70),
         notes: String(form.notes ?? "")
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "meeting") {
-    await supabase
+    await must(supabase
       .from("meetings")
       .update({
         title: String(form.title ?? ""),
         meeting_at: dateTime(String(form.meeting_at ?? ""))
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   if (entity === "note") {
-    await supabase
+    await must(supabase
       .from("notes")
       .update({
         body: String(form.body ?? "")
       })
-      .eq("id", id);
+      .eq("id", id));
   }
 
   const { data: organization } = await supabase
@@ -178,6 +179,9 @@ export async function POST(request: NextRequest) {
 
   if (organization) {
     await logEvent(supabase, organization.id as string, "update", `Actualizado: ${entity}`, optional(String(form.project_id ?? "")));
+  }
+  } catch (error) {
+    return redirectWithMessage(request, redirect, error instanceof Error ? error.message : "No se ha podido actualizar.");
   }
 
   revalidatePath("/", "layout");
@@ -208,6 +212,13 @@ function tomorrowIsoDate() {
   const date = new Date();
   date.setDate(date.getDate() + 1);
   return date.toISOString().slice(0, 10);
+}
+
+async function must(result: PromiseLike<{ error: { message: string } | null }>) {
+  const { error } = await result;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 async function logEvent(
