@@ -5,6 +5,7 @@ const navItems: Array<[string, string]> = [
   ["Hoy", "/"],
   ["ATLAS IA", "/assistant"],
   ["Buscar", "/search"],
+  ["Editar", "/edit"],
   ["Semana", "/week"],
   ["Calendario", "/calendar"],
   ["Seguimientos", "/followups"],
@@ -16,6 +17,7 @@ const navItems: Array<[string, string]> = [
   ["Estudio", "/studio"],
   ["Plantillas", "/templates"],
   ["Informes", "/reports"],
+  ["Automatizaciones", "/automations"],
   ["Sistema", "/system"]
 ];
 
@@ -57,6 +59,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </form>
       </aside>
       <main className="main">{children}</main>
+      <nav className="mobile-dock">
+        <Link href="/">Hoy</Link>
+        <Link href="/new?type=task">+ Nuevo</Link>
+        <Link href="/new?type=document-upload">Subir</Link>
+        <Link href="/edit">Editar</Link>
+      </nav>
     </div>
   );
 }

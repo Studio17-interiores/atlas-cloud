@@ -23,29 +23,29 @@ export default async function TodayPage() {
 
       <section className="grid">
         <article className="panel large command-panel">
-          <p className="eyebrow">✨ Haz esto primero</p>
+          <p className="eyebrow">Hoy manda esto</p>
           <h2>{brief.firstAction}</h2>
           {topTasks[0] ? (
-            <form action="/api/update" method="post">
-              <input type="hidden" name="entity" value="task" />
-              <input type="hidden" name="id" value={topTasks[0].id} />
-              <input type="hidden" name="done" value="true" />
-              <input type="hidden" name="redirect" value="/" />
-              <button type="submit">Marcar como hecho</button>
-            </form>
-          ) : null}
+            <div className="action-row">
+              <DoneTaskForm id={topTasks[0].id} label="Marcar como hecho" />
+              <PostponeTaskForm id={topTasks[0].id} />
+              <Link className="button-link subtle" href="/new?type=task">Convertir en tarea</Link>
+            </div>
+          ) : (
+            <Link className="button-link" href="/new?type=task">Crear primera tarea</Link>
+          )}
         </article>
 
         <article className="panel">
-          <p className="eyebrow">💸 Dinero pendiente</p>
+          <p className="eyebrow">Dinero pendiente</p>
           <h2>{formatEuro(pendingMoney)}</h2>
-          <p className="muted">Que ATLAS no debe dejar escapar.</p>
+          <p className="muted">Cobros, pagos o gastos que ATLAS no debe dejar escapar.</p>
           <Link className="button-link subtle" href="/money">Ver dinero</Link>
         </article>
 
         <article className="panel">
-          <p className="eyebrow">🔥 Hay que apretar</p>
-          <h2>{weakestProject?.name ?? "Sin proyecto"}</h2>
+          <p className="eyebrow">Hay que apretar</p>
+          <h2>{weakestProject?.name ?? "Sin proyecto critico"}</h2>
           <p>{brief.growth}</p>
         </article>
 
@@ -60,30 +60,29 @@ export default async function TodayPage() {
                     <strong>{task.title}</strong>
                     <p className="muted">{project?.name ?? "Studio 17"} · importancia {task.importance}/10</p>
                   </div>
-                  <form action="/api/update" method="post">
-                    <input type="hidden" name="entity" value="task" />
-                    <input type="hidden" name="id" value={task.id} />
-                    <input type="hidden" name="done" value="true" />
-                    <input type="hidden" name="redirect" value="/" />
-                    <button type="submit">Hecho</button>
-                  </form>
+                  <div className="action-row tight">
+                    <DoneTaskForm id={task.id} label="Hecho" />
+                    <PostponeTaskForm id={task.id} />
+                  </div>
                 </div>
               );
             })}
+            {!topTasks.length ? <p className="muted">No hay tareas abiertas. Buen momento para definir una prioridad real.</p> : null}
           </div>
         </article>
 
         <article className="panel">
-          <h2>📌 No olvides</h2>
+          <h2>No olvides</h2>
           <p>{brief.watch}</p>
         </article>
 
         <article className="panel">
-          <h2>Clientes que no enfriar</h2>
+          <h2>Clientes que no se pueden enfriar</h2>
           <ul className="clean-list">
             {coldClients.map((client) => (
               <li key={client.id}><strong>{client.name}:</strong> {client.next_action}</li>
             ))}
+            {!coldClients.length ? <li>No hay seguimientos urgentes.</li> : null}
           </ul>
         </article>
 
@@ -98,7 +97,13 @@ export default async function TodayPage() {
                     <strong>{decision.title}</strong>
                     <p className="muted">{project?.name ?? "Studio 17"} · {decision.impact}</p>
                   </div>
-                  <Link className="button-link subtle" href={`/new?type=task`}>Crear tarea</Link>
+                  <form action="/api/convert/decision-task" method="post">
+                    <input type="hidden" name="decision_id" value={decision.id} />
+                    <input type="hidden" name="project_id" value={decision.project_id ?? ""} />
+                    <input type="hidden" name="title" value={decision.title} />
+                    <input type="hidden" name="redirect" value="/" />
+                    <button className="subtle" type="submit">Convertir en tarea</button>
+                  </form>
                 </div>
               );
             })}
@@ -107,5 +112,29 @@ export default async function TodayPage() {
         </article>
       </section>
     </>
+  );
+}
+
+function DoneTaskForm({ id, label }: { id: string; label: string }) {
+  return (
+    <form action="/api/update" method="post">
+      <input type="hidden" name="entity" value="task" />
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="done" value="true" />
+      <input type="hidden" name="redirect" value="/" />
+      <button type="submit">{label}</button>
+    </form>
+  );
+}
+
+function PostponeTaskForm({ id }: { id: string }) {
+  return (
+    <form action="/api/update" method="post">
+      <input type="hidden" name="entity" value="task" />
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="action" value="postpone" />
+      <input type="hidden" name="redirect" value="/" />
+      <button className="subtle" type="submit">Posponer</button>
+    </form>
   );
 }

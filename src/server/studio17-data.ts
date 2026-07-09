@@ -111,6 +111,14 @@ export type StudioAutomation = {
   config: Record<string, unknown>;
 };
 
+export type StudioHistoryEvent = {
+  id: string;
+  type: string;
+  body: string;
+  project_id: string | null;
+  created_at: string;
+};
+
 export async function getStudio17Data() {
   const supabase = createSupabaseAdminClient();
 
@@ -134,13 +142,14 @@ export async function getStudio17Data() {
       suppliers: [] as StudioSupplier[],
       meetings: [] as StudioMeeting[],
       notes: [] as StudioNote[],
-      automations: [] as StudioAutomation[]
+      automations: [] as StudioAutomation[],
+      historyEvents: [] as StudioHistoryEvent[]
     };
   }
 
   const organizationId = organization.id as string;
 
-  const [projects, tasks, decisions, moneyMovements, goals, clients, documents, templates, suppliers, meetings, notes, automations] = await Promise.all([
+  const [projects, tasks, decisions, moneyMovements, goals, clients, documents, templates, suppliers, meetings, notes, automations, historyEvents] = await Promise.all([
     supabase
       .from("projects")
       .select("id, name, description, phase, health, budget, fee, fee_paid_percent, fee_type, client_id")
@@ -201,6 +210,11 @@ export async function getStudio17Data() {
       .from("automations")
       .select("id, name, rule_type, enabled, config")
       .eq("organization_id", organizationId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("history_events")
+      .select("id, type, body, project_id, created_at")
+      .eq("organization_id", organizationId)
       .order("created_at", { ascending: true })
   ]);
 
@@ -217,7 +231,8 @@ export async function getStudio17Data() {
     suppliers: (suppliers.data ?? []) as StudioSupplier[],
     meetings: (meetings.data ?? []) as StudioMeeting[],
     notes: (notes.data ?? []) as StudioNote[],
-    automations: (automations.data ?? []) as StudioAutomation[]
+    automations: (automations.data ?? []) as StudioAutomation[],
+    historyEvents: (historyEvents.data ?? []) as StudioHistoryEvent[]
   };
 }
 

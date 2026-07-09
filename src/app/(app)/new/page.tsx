@@ -236,7 +236,11 @@ function UploadForm({ title, kind, selected, children }: { title: string; kind: 
         <input type="hidden" name="kind" value={kind} />
         <input type="hidden" name="redirect" value={`/new?type=${selected}`} />
         {children}
-        <input name="file" type="file" required />
+        <label className="dropzone">
+          <strong>Arrastra aqui el archivo o pulsa para elegirlo</strong>
+          <span>Contrato, presupuesto, fotos, factura, planos o plantilla.</span>
+          <input name="file" type="file" required />
+        </label>
         <button type="submit">Subir archivo</button>
       </form>
     </article>

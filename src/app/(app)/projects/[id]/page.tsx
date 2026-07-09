@@ -25,7 +25,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   const money = data.moneyMovements.filter((movement) => movement.project_id === project.id);
   const decisions = data.decisions.filter((decision) => decision.project_id === project.id);
   const notes = data.notes.filter((note) => note.project_id === project.id);
+  const history = data.historyEvents.filter((event) => event.project_id === project.id).slice(-8).reverse();
   const pending = money.filter((movement) => movement.status === "pending").reduce((total, movement) => total + Number(movement.amount), 0);
+  const hasContract = documents.some((document) => document.type === "contract");
+  const hasBudget = documents.some((document) => document.type === "budget");
 
   return (
     <>
@@ -54,19 +57,22 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <div className="action-row">
             <Link className="button-link" href={`/new?type=document-upload`}>Subir documento</Link>
             <Link className="button-link subtle" href={`/new?type=note`}>Anadir nota</Link>
-            <Link className="button-link subtle" href={`/new?type=money`}>Anadir dinero</Link>
+            <Link className="button-link subtle" href={`/new?type=money`}>Anadir gasto/cobro</Link>
+            <Link className="button-link subtle" href={`/assistant?mode=project&project=${project.id}`}>Revisar este proyecto</Link>
           </div>
         </article>
 
         <article className="panel">
-          <h2>Riesgo ATLAS</h2>
+          <h2>Salud del proyecto</h2>
           <p>{project.health < 70 ? "Hay que apretar. Revisa bloqueos, cobros y decisiones." : "Proyecto razonablemente controlado."}</p>
+          {!hasContract ? <p className="notice error">Falta contrato asociado.</p> : null}
+          {!hasBudget ? <p className="notice">Falta presupuesto asociado.</p> : null}
         </article>
 
         <article className="panel large">
-          <h2>Tareas</h2>
+          <h2>Proximas acciones</h2>
           <div className="table-list">
-            {tasks.map((task) => (
+            {tasks.slice(0, 5).map((task) => (
               <div className="row" key={task.id}>
                 <div>
                   <strong>{task.done ? "Hecho: " : ""}{task.title}</strong>
@@ -83,16 +89,30 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                 ) : null}
               </div>
             ))}
+            {!tasks.length ? <p className="muted">No hay tareas para este proyecto.</p> : null}
           </div>
         </article>
 
         <article className="panel">
           <h2>Decisiones</h2>
-          <ul className="clean-list">
+          <div className="table-list">
             {decisions.map((decision) => (
-              <li key={decision.id}>{decision.title}</li>
+              <div className="row" key={decision.id}>
+                <div>
+                  <strong>{decision.title}</strong>
+                  <p className="muted">{decision.impact}</p>
+                </div>
+                <form action="/api/convert/decision-task" method="post">
+                  <input type="hidden" name="decision_id" value={decision.id} />
+                  <input type="hidden" name="project_id" value={project.id} />
+                  <input type="hidden" name="title" value={decision.title} />
+                  <input type="hidden" name="redirect" value={`/projects/${project.id}`} />
+                  <button className="subtle" type="submit">Crear tarea</button>
+                </form>
+              </div>
             ))}
-          </ul>
+            {!decisions.length ? <p className="muted">Sin decisiones bloqueadas.</p> : null}
+          </div>
         </article>
 
         <article className="panel full">
@@ -104,7 +124,31 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                   <strong>{document.title}</strong>
                   <p className="muted">{document.type} · {document.status} · {document.file_name ?? "sin archivo"}</p>
                 </div>
-                {document.storage_path ? <a className="button-link subtle" href={`/api/download?path=${encodeURIComponent(document.storage_path)}`}>Descargar</a> : null}
+                <div className="action-row tight">
+                  {document.storage_path ? <a className="button-link subtle" href={`/api/download?path=${encodeURIComponent(document.storage_path)}`}>Descargar</a> : null}
+                  <form action="/api/update" method="post">
+                    <input type="hidden" name="entity" value="document" />
+                    <input type="hidden" name="id" value={document.id} />
+                    <input type="hidden" name="title" value={document.title} />
+                    <input type="hidden" name="type" value={document.type} />
+                    <input type="hidden" name="redirect" value={`/projects/${project.id}`} />
+                    <select name="status" defaultValue={document.status}>
+                      <option value="pending">Pendiente</option>
+                      <option value="reviewed">Revisado</option>
+                      <option value="signed">Firmado</option>
+                      <option value="sent">Enviado</option>
+                      <option value="uploaded">Subido</option>
+                    </select>
+                    <button className="subtle" type="submit">Estado</button>
+                  </form>
+                  <form action="/api/delete" method="post">
+                    <input type="hidden" name="entity" value="document" />
+                    <input type="hidden" name="id" value={document.id} />
+                    <input type="hidden" name="storage_path" value={document.storage_path ?? ""} />
+                    <input type="hidden" name="redirect" value={`/projects/${project.id}`} />
+                    <button className="danger" type="submit">Borrar</button>
+                  </form>
+                </div>
               </div>
             ))}
             {!documents.length ? <p className="muted">Todavia no hay documentos.</p> : null}
@@ -112,7 +156,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         </article>
 
         <article className="panel large">
-          <h2>Dinero</h2>
+          <h2>Dinero del proyecto</h2>
           <div className="table-list">
             {money.map((movement) => (
               <div className="row" key={movement.id}>
@@ -123,6 +167,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                 <strong>{formatEuro(Number(movement.amount))}</strong>
               </div>
             ))}
+            {!money.length ? <p className="muted">Sin movimientos asociados.</p> : null}
           </div>
         </article>
 
@@ -132,7 +177,24 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             {notes.slice(0, 5).map((note) => (
               <li key={note.id}>{note.body}</li>
             ))}
+            {!notes.length ? <li>Sin notas todavia.</li> : null}
           </ul>
+        </article>
+
+        <article className="panel full">
+          <h2>Historial</h2>
+          <div className="table-list">
+            {history.map((event) => (
+              <div className="row" key={event.id}>
+                <div>
+                  <strong>{event.type}</strong>
+                  <p className="muted">{event.body}</p>
+                </div>
+                <span className="pill">{new Date(event.created_at).toLocaleDateString("es-ES")}</span>
+              </div>
+            ))}
+            {!history.length ? <p className="muted">El historial aparecera aqui cuando haya cambios registrados.</p> : null}
+          </div>
         </article>
       </section>
     </>

@@ -17,6 +17,18 @@ export default async function GrowthPage() {
         <p>Mensual, trimestral y anual con acciones concretas para mejorar.</p>
       </section>
 
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h2>Estructura real de Studio 17</h2>
+            <p className="muted">Si estos objetivos eran provisionales, puedes limpiar y crear una estructura real: mensual, trimestral y anual.</p>
+          </div>
+          <form action="/api/setup/real-goals" method="post">
+            <button type="submit">Recrear objetivos reales</button>
+          </form>
+        </div>
+      </section>
+
       <section className="grid">
         {data.goals.map((goal) => {
           const percent = Math.min(Math.round((Number(goal.current_value) / Number(goal.target_value || 1)) * 100), 100);

@@ -49,7 +49,20 @@ export async function POST(request: NextRequest) {
   }
 
   if (entity === "task") {
-    await supabase.from("tasks").update({ done: String(form.done ?? "") === "true" }).eq("id", id);
+    const action = String(form.action ?? "");
+    const update: Record<string, unknown> = action === "postpone" || !("title" in form)
+      ? action === "postpone"
+        ? { due_date: tomorrowIsoDate() }
+        : { done: String(form.done ?? "") === "true" }
+      : {
+          title: String(form.title ?? ""),
+          importance: number(form.importance, 7),
+          area: String(form.area ?? ""),
+          due_date: optional(String(form.due_date ?? "")),
+          done: String(form.done ?? "") === "true"
+        };
+
+    await supabase.from("tasks").update(update).eq("id", id);
   }
 
   if (entity === "money") {
@@ -101,6 +114,48 @@ export async function POST(request: NextRequest) {
       .eq("id", id);
   }
 
+  if (entity === "template") {
+    await supabase
+      .from("templates")
+      .update({
+        title: String(form.title ?? ""),
+        type: String(form.type ?? "template"),
+        notes: String(form.notes ?? "")
+      })
+      .eq("id", id);
+  }
+
+  if (entity === "supplier") {
+    await supabase
+      .from("suppliers")
+      .update({
+        name: String(form.name ?? ""),
+        category: String(form.category ?? ""),
+        reliability: number(form.reliability, 70),
+        notes: String(form.notes ?? "")
+      })
+      .eq("id", id);
+  }
+
+  if (entity === "meeting") {
+    await supabase
+      .from("meetings")
+      .update({
+        title: String(form.title ?? ""),
+        meeting_at: dateTime(String(form.meeting_at ?? ""))
+      })
+      .eq("id", id);
+  }
+
+  if (entity === "note") {
+    await supabase
+      .from("notes")
+      .update({
+        body: String(form.body ?? "")
+      })
+      .eq("id", id);
+  }
+
   return NextResponse.redirect(new URL(`${redirect}?updated=1`, request.url), { status: 303 });
 }
 
@@ -114,6 +169,20 @@ function splitLines(value: string) {
     .split("\n")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function optional(value: string) {
+  return value ? value : null;
+}
+
+function dateTime(value: string) {
+  return value ? new Date(value).toISOString() : new Date().toISOString();
+}
+
+function tomorrowIsoDate() {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().slice(0, 10);
 }
 
 function redirectWithMessage(request: NextRequest, redirect: string, message: string) {
