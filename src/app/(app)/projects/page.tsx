@@ -27,9 +27,17 @@ export default async function ProjectsPage() {
           const projectTasks = data.tasks.filter((task) => task.project_id === project.id && !task.done);
           const projectDecisions = data.decisions.filter((decision) => decision.project_id === project.id);
           const projectMoney = data.moneyMovements.filter((movement) => movement.project_id === project.id);
+          const projectDocs = data.documents.filter((document) => document.project_id === project.id);
           const pending = projectMoney
             .filter((movement) => movement.status === "pending")
             .reduce((total, movement) => total + Number(movement.amount), 0);
+          const projectIssues = [
+            !projectDocs.some((document) => document.type === "contract") ? "sin contrato" : "",
+            !projectDocs.some((document) => document.type === "budget") ? "sin presupuesto" : "",
+            projectTasks.length ? `${projectTasks.length} tareas` : "",
+            projectDecisions.length ? `${projectDecisions.length} decisiones` : "",
+            pending ? `${formatEuro(pending)} pendiente` : ""
+          ].filter(Boolean);
 
           return (
             <article className="panel large" key={project.id}>
@@ -49,6 +57,9 @@ export default async function ProjectsPage() {
                 <span>Honorarios {formatEuro(Number(project.fee))}</span>
                 <span>Cobrado {project.fee_paid_percent}%</span>
                 <span>Pendiente {formatEuro(pending)}</span>
+              </div>
+              <div className="audit-line">
+                {projectIssues.length ? projectIssues.map((issue) => <span key={issue}>{issue}</span>) : <span>sin huecos criticos</span>}
               </div>
               <h3>Ahora mismo</h3>
               <div className="table-list">
@@ -86,6 +97,7 @@ export default async function ProjectsPage() {
               </div>
               <div className="action-row">
                 <Link className="button-link subtle" href={`/projects/${project.id}`}>Abrir ficha</Link>
+                <Link className="button-link subtle" href="/review">Revisar salud</Link>
                 <Link className="button-link subtle" href={`/new?type=task&project=${project.id}`}>+ Tarea</Link>
                 <Link className="button-link subtle" href={`/new?type=document-upload&project=${project.id}`}>Subir documento</Link>
               </div>

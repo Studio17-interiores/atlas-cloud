@@ -583,6 +583,24 @@ button.subtle {
   font-size: 0.86rem;
 }
 
+.audit-line,
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.audit-line span {
+  background: #f4eee5;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 6px 9px;
+}
+
 .edit-row {
   align-items: center;
   border-top: 1px solid var(--line);

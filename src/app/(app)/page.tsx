@@ -19,7 +19,8 @@ export default async function TodayPage() {
         <h1>{brief.firstAction}</h1>
         <p>{brief.message}</p>
         <div className="action-row">
-          <Link className="button-link" href="/new?type=task">+ Tarea</Link>
+          <Link className="button-link" href="/review">Revision 5 min</Link>
+          <Link className="button-link subtle" href="/new?type=task">+ Tarea</Link>
           <Link className="button-link subtle" href="/new?type=money">+ Gasto / cobro</Link>
           <Link className="button-link subtle" href="/new?type=document-upload">Subir archivo</Link>
         </div>

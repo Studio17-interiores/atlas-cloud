@@ -3,6 +3,7 @@ import { formatEuro, getStudio17Data } from "@/server/studio17-data";
 
 const studioLinks = [
   ["/assistant", "ATLAS IA", "Revisar riesgos, preparar reuniones y crear planes de accion."],
+  ["/review", "Revision 5 min", "Auditoria de proyectos, dinero, decisiones y seguimientos."],
   ["/week", "Semana", "Plan semanal y tareas de foco."],
   ["/growth", "Objetivos", "Mensual, trimestral y anual."],
   ["/marketing", "Marketing", "Ideas, redes, SEO y contenido de obra."],
