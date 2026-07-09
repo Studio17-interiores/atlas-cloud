@@ -2,19 +2,27 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getStudio17Data } from "@/server/studio17-data";
 
+const quickOptions = [
+  ["task", "Tarea rapida"],
+  ["money", "Gasto / cobro"],
+  ["document-upload", "Documento"],
+  ["client", "Lead"],
+  ["meeting", "Reunion"]
+] as const;
+
 const options = [
-  ["task", "✅ Tarea", "Algo que hay que hacer"],
-  ["money", "💸 Gasto / cobro", "Dinero que entra o sale"],
-  ["document-upload", "📎 Subir documento", "Contrato, fotos, planos o factura"],
-  ["project", "🏗️ Proyecto", "Una obra, decoracion o medidor"],
-  ["client", "👤 Cliente / lead", "Persona o empresa"],
-  ["goal", "🎯 Objetivo", "Mensual, trimestral o anual"],
-  ["meeting", "📅 Reunion", "Cita con preparacion"],
-  ["decision", "📌 Decision", "Algo que no puede quedar en el aire"],
-  ["template-upload", "📄 Subir plantilla", "Contrato, presupuesto o checklist"],
-  ["supplier", "🧱 Proveedor", "Materiales, oficios o colaborador"],
-  ["note", "📝 Nota", "Contexto rapido de proyecto"],
-  ["automation", "⚡ Automatizacion", "Recordatorio o regla simple"]
+  ["task", "Tarea", "Algo que hay que hacer"],
+  ["money", "Gasto / cobro", "Dinero que entra o sale"],
+  ["document-upload", "Subir documento", "Contrato, fotos, planos o factura"],
+  ["client", "Cliente / lead", "Persona o empresa"],
+  ["project", "Proyecto", "Una obra, decoracion o medidor"],
+  ["meeting", "Reunion", "Cita con preparacion"],
+  ["decision", "Decision", "Algo que no puede quedar en el aire"],
+  ["note", "Nota", "Contexto rapido de proyecto"],
+  ["template-upload", "Subir plantilla", "Contrato, presupuesto o checklist"],
+  ["supplier", "Proveedor", "Materiales, oficios o colaborador"],
+  ["goal", "Objetivo", "Mensual, trimestral o anual"],
+  ["automation", "Automatizacion", "Recordatorio o regla simple"]
 ] as const;
 
 type NewPageProps = {
@@ -39,17 +47,25 @@ export default async function NewPage({ searchParams }: NewPageProps) {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero compact-hero">
         <p>Nuevo</p>
-        <h1>Que quieres anadir?</h1>
-        <p>Elige una opcion y ATLAS te ensena solo el formulario necesario. Sin ruido.</p>
+        <h1>Anadir algo a ATLAS</h1>
+        <p>Primero lo frecuente. Lo demas queda debajo para cuando haga falta.</p>
       </section>
 
       {created ? <p className="notice">Guardado. ATLAS ya lo tiene.</p> : null}
       {uploaded ? <p className="notice">Archivo subido. ATLAS ya lo ha guardado.</p> : null}
       {error ? <p className="notice error">No se ha guardado: {error}</p> : null}
 
-      <section className="choice-grid">
+      <section className="quick-create">
+        {quickOptions.map(([type, label]) => (
+          <Link className={selected === type ? "quick-create-item active" : "quick-create-item"} href={`/new?type=${type}`} key={type}>
+            {label}
+          </Link>
+        ))}
+      </section>
+
+      <section className="choice-grid compact-choices">
         {options.map(([type, label, description]) => (
           <Link className={selected === type ? "choice active" : "choice"} href={`/new?type=${type}`} key={type}>
             <strong>{label}</strong>
@@ -61,17 +77,26 @@ export default async function NewPage({ searchParams }: NewPageProps) {
       <section className="grid">
         {!selected ? (
           <article className="panel large">
-            <h2>Entrada rapida</h2>
-            <p>Elige arriba que quieres crear. Mi recomendacion para el dia a dia: tarea, dinero o subir documento.</p>
+            <h2>Tarea rapida</h2>
+            <p>Si estas en medio del dia y no quieres pensar, guarda una tarea. Luego ATLAS la colocara en Hoy, Semana o Proyecto.</p>
+            <form action="/api/create" method="post" className="quick-form">
+              <input type="hidden" name="entity" value="task" />
+              <input type="hidden" name="importance" value="7" />
+              <input type="hidden" name="redirect" value="/new" />
+              <input name="title" placeholder="Que hay que hacer?" required />
+              <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
+              <input name="due_date" type="date" defaultValue={selectedDate} />
+              <button type="submit">Guardar tarea rapida</button>
+            </form>
           </article>
         ) : null}
 
         {selected === "client" ? (
           <QuickForm title="Cliente o lead" entity="client" selected={selected} projectId={selectedProjectId} date={selectedDate}>
             <input name="name" placeholder="Nombre" required />
-            <select name="type" defaultValue="client">
-              <option value="client">Cliente</option>
+            <select name="type" defaultValue="lead">
               <option value="lead">Lead</option>
+              <option value="client">Cliente</option>
             </select>
             <input name="estimated_value" placeholder="Valor estimado" type="number" />
             <input name="next_action" placeholder="Siguiente accion" />
@@ -125,20 +150,6 @@ export default async function NewPage({ searchParams }: NewPageProps) {
           </QuickForm>
         ) : null}
 
-        {selected === "goal" ? (
-          <QuickForm title="Objetivo real" entity="goal" selected={selected} projectId={selectedProjectId} date={selectedDate}>
-            <input name="title" placeholder="Objetivo" required />
-            <select name="period" defaultValue="month">
-              <option value="month">Mensual</option>
-              <option value="quarter">Trimestral</option>
-              <option value="year">Anual</option>
-            </select>
-            <input name="current_value" placeholder="Actual" type="number" defaultValue="0" />
-            <input name="target_value" placeholder="Meta" type="number" defaultValue="1" />
-            <textarea name="actions" placeholder={"Acciones para mejorar\nUna por linea"} />
-          </QuickForm>
-        ) : null}
-
         {selected === "document-upload" ? (
           <UploadForm title="Subir documento de proyecto" kind="document" selected={selected} projectId={selectedProjectId} date={selectedDate}>
             <input name="title" placeholder="Titulo del documento" required />
@@ -186,6 +197,13 @@ export default async function NewPage({ searchParams }: NewPageProps) {
           </QuickForm>
         ) : null}
 
+        {selected === "note" ? (
+          <QuickForm title="Nota de proyecto" entity="note" selected={selected} projectId={selectedProjectId} date={selectedDate}>
+            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
+            <textarea name="body" placeholder="Nota" required />
+          </QuickForm>
+        ) : null}
+
         {selected === "supplier" ? (
           <QuickForm title="Proveedor" entity="supplier" selected={selected} projectId={selectedProjectId} date={selectedDate}>
             <input name="name" placeholder="Nombre" required />
@@ -195,10 +213,17 @@ export default async function NewPage({ searchParams }: NewPageProps) {
           </QuickForm>
         ) : null}
 
-        {selected === "note" ? (
-          <QuickForm title="Nota de proyecto" entity="note" selected={selected} projectId={selectedProjectId} date={selectedDate}>
-            <ProjectSelect projects={data.projects} defaultProjectId={selectedProjectId} />
-            <textarea name="body" placeholder="Nota" required />
+        {selected === "goal" ? (
+          <QuickForm title="Objetivo real" entity="goal" selected={selected} projectId={selectedProjectId} date={selectedDate}>
+            <input name="title" placeholder="Objetivo" required />
+            <select name="period" defaultValue="month">
+              <option value="month">Mensual</option>
+              <option value="quarter">Trimestral</option>
+              <option value="year">Anual</option>
+            </select>
+            <input name="current_value" placeholder="Actual" type="number" defaultValue="0" />
+            <input name="target_value" placeholder="Meta" type="number" defaultValue="1" />
+            <textarea name="actions" placeholder={"Acciones para mejorar\nUna por linea"} />
           </QuickForm>
         ) : null}
 

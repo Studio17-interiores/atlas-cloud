@@ -27,14 +27,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Link href="/new?type=task">Tarea</Link>
           <Link href="/new?type=money">Gasto / cobro</Link>
           <Link href="/new?type=document-upload">Subir documento</Link>
-          <Link href="/new?type=project">Proyecto</Link>
           <Link href="/new?type=client">Cliente / lead</Link>
-          <Link href="/new?type=goal">Objetivo</Link>
           <Link href="/new?type=meeting">Reunion</Link>
+          <span className="menu-divider">Mas opciones</span>
+          <Link href="/new?type=project">Proyecto</Link>
           <Link href="/new?type=decision">Decision</Link>
           <Link href="/new?type=template-upload">Subir plantilla</Link>
           <Link href="/new?type=supplier">Proveedor</Link>
           <Link href="/new?type=note">Nota</Link>
+          <Link href="/new?type=goal">Objetivo</Link>
           <Link href="/new?type=automation">Automatizacion</Link>
         </details>
         <nav className="nav">

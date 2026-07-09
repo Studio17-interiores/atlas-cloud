@@ -334,6 +334,39 @@ button {
   border-color: var(--sand);
 }
 
+.quick-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.quick-create-item {
+  background: var(--accent);
+  border-radius: 999px;
+  color: white;
+  font-weight: 900;
+  padding: 9px 12px;
+  text-decoration: none;
+}
+
+.quick-create-item.active {
+  background: #6f5c45;
+}
+
+.compact-choices {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.menu-divider {
+  color: var(--muted);
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 8px 10px 2px;
+  text-transform: uppercase;
+}
+
 .ai-list li {
   font-size: 1.02rem;
   margin: 10px 0;
